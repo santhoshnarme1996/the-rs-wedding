@@ -113,14 +113,6 @@ a {
   padding: 0 6px;
 }
 
-.thoranam__pair {
-  position: relative;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  width: 28px;
-}
-
 .thoranam__leaf {
   width: 19px;
   height: 40px;
@@ -134,33 +126,6 @@ a {
 
 .thoranam__leaf:nth-child(4n) {
   animation-delay: -2.6s;
-}
-
-.thoranam__flower {
-  position: absolute;
-  top: 25px;
-  left: 50%;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: #f7eee3;
-  box-shadow:
-    -7px 0 0 -2px #f7eee3,
-    7px 0 0 -2px #f7eee3,
-    0 -7px 0 -2px #f7eee3,
-    0 7px 0 -2px #f7eee3,
-    0 0 0 2px rgba(189, 150, 72, 0.5);
-  transform: translateX(-50%);
-}
-
-.thoranam__pair:nth-child(2n) .thoranam__flower {
-  background: #e8a5b2;
-  box-shadow:
-    -7px 0 0 -2px #e8a5b2,
-    7px 0 0 -2px #e8a5b2,
-    0 -7px 0 -2px #e8a5b2,
-    0 7px 0 -2px #e8a5b2,
-    0 0 0 2px rgba(189, 150, 72, 0.5);
 }
 
 .kolam-halo {
@@ -802,16 +767,6 @@ h2 {
   .thoranam__leaf {
     width: 14px;
     height: 31px;
-  }
-
-  .thoranam__pair {
-    width: 20px;
-  }
-
-  .thoranam__flower {
-    top: 20px;
-    width: 8px;
-    height: 8px;
   }
 
   .kolam-halo {

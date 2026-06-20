@@ -128,20 +128,17 @@ function usePetals(canvasRef) {
 }
 
 function Thoranam() {
-  const leaves = Array.from({ length: 16 }, (_, index) => index);
-
   return (
     <div className="thoranam" aria-hidden="true">
       <div className="thoranam__line" />
       <div className="thoranam__leaves">
-        {leaves.map((index) => <div className="thoranam__pair" key={index}>
-          <svg className="thoranam__leaf" viewBox="0 0 20 42">
+        {Array.from({ length: 20 }, (_, index) => (
+          <svg className="thoranam__leaf" key={index} viewBox="0 0 20 42">
             <path d="M10 1C18 13 18 30 10 41C2 30 2 13 10 1Z" fill="#7e9d6e" />
             <path d="M10 1C14 13 14 30 10 41C9 30 9 13 10 1Z" fill="#92b07d" />
             <path d="M10 4L10 38" stroke="#5b7a4f" strokeWidth="0.8" opacity="0.5" />
           </svg>
-          <span className="thoranam__flower" />
-        </div>)}
+        ))}
       </div>
     </div>
   );
