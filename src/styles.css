@@ -114,8 +114,8 @@ a {
 }
 
 .thoranam__leaf {
-  width: 19px;
-  height: 40px;
+  width: 25px;
+  height: 52px;
   transform-origin: top center;
   animation: leaf-sway 4.6s ease-in-out infinite;
 }
@@ -765,8 +765,8 @@ h2 {
   }
 
   .thoranam__leaf {
-    width: 14px;
-    height: 31px;
+    width: 18px;
+    height: 38px;
   }
 
   .kolam-halo {
