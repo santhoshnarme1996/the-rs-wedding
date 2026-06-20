@@ -214,7 +214,7 @@ function App() {
     const updateParallax = () => {
       const image = heroImageRef.current;
       if (image && window.scrollY < 1000) {
-        image.style.transform = `translateX(-50%) translateY(${window.scrollY * 0.16}px) scale(1.1)`;
+        image.style.setProperty("--hero-parallax", `${window.scrollY * 0.16}px`);
       }
     };
 
@@ -235,7 +235,9 @@ function App() {
 
         <div className="hero__content">
           <p className="hero__ganesha">ॐ श्री गणेशाय नमः</p>
-          <p className="hero__overline">{weddingData.heroLabel}</p>
+          <p className="hero__overline">
+            {weddingData.heroLabel.map((line) => <span key={line}>{line}</span>)}
+          </p>
           <h1>
             <span>{weddingData.couple[0]}</span>
             <em>&amp;</em>

@@ -47,7 +47,7 @@ a {
   z-index: 0;
   width: 140%;
   max-width: 1500px;
-  transform: translateX(-50%) scale(1.1);
+  transform: translateX(-50%) translateY(var(--hero-parallax, 0px)) scale(1.1);
   object-fit: cover;
   opacity: 0.96;
   pointer-events: none;
@@ -178,6 +178,10 @@ a {
   max-width: 32rem;
   letter-spacing: 0.1em;
   text-transform: none;
+}
+
+.hero__overline span {
+  display: block;
 }
 
 .hero h1 {
@@ -645,7 +649,7 @@ h2 {
   background: repeating-linear-gradient(135deg, #efe2cf, #efe2cf 11px, #e8d8c1 11px, #e8d8c1 22px);
 }
 
-.person-card--1 .person-card__image {
+.person-card--0 .person-card__image {
   background: repeating-linear-gradient(135deg, #f0dde0, #f0dde0 11px, #e9d0d4 11px, #e9d0d4 22px);
 }
 
@@ -755,13 +759,23 @@ h2 {
 
 @media (max-width: 640px) {
   .hero {
+    height: 100svh;
     min-height: 100svh;
     padding: 86px 18px 42px;
   }
 
   .hero__temple {
-    width: 220%;
+    inset: 0;
+    width: 100%;
+    height: 100%;
     max-width: none;
+    transform: translateY(var(--hero-parallax, 0px)) scale(1.08);
+    object-fit: cover;
+    object-position: 58% center;
+  }
+
+  .hero__wash {
+    background: linear-gradient(180deg, rgba(251, 244, 239, 0.55) 0%, rgba(251, 244, 239, 0.16) 30%, rgba(251, 244, 239, 0.24) 58%, rgba(251, 244, 239, 0.52) 100%);
   }
 
   .hero__legibility {
@@ -788,6 +802,7 @@ h2 {
     margin-top: 10px;
     font-size: 10px;
     letter-spacing: 0.08em;
+    line-height: 1.45;
   }
 
   .hero h1 {

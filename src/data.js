@@ -2,7 +2,10 @@ export const weddingData = {
   couple: ["Santhosh", "Rithikha"],
   weddingStart: "2026-09-12T09:00:00",
   weddingDate: "12 & 13 September 2026",
-  heroLabel: "With love in our hearts, we invite you to celebrate our wedding",
+  heroLabel: [
+    "With love in our hearts,",
+    "we invite you to celebrate our wedding",
+  ],
   families: ["Santhosh & family", "Rithikha & family"],
   invitation: {
     sanskrit: "समानी व आकूतिः\nसमाना हृदयानि वः",
@@ -103,20 +106,20 @@ export const weddingData = {
   ],
   people: [
     {
-      role: "The Groom",
-      name: "Santhosh",
-      location: "Bombay roots · Bay Area home",
-      imageLabel: "photo · santhosh",
-      description:
-        "Grounded, warm, and family-oriented - carrying Bombay energy and Bay Area calm into this celebration.",
-    },
-    {
       role: "The Bride",
       name: "Rithikha",
       location: "Chennai at heart",
       imageLabel: "photo · rithikha",
       description:
         "Graceful, thoughtful, and deeply connected to tradition - carrying the warmth and rhythm of Chennai into every detail.",
+    },
+    {
+      role: "The Groom",
+      name: "Santhosh",
+      location: "Bombay roots · Bay Area home",
+      imageLabel: "photo · santhosh",
+      description:
+        "Grounded, warm, and family-oriented - carrying Bombay energy and Bay Area calm into this celebration.",
     },
   ],
 };
