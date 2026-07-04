@@ -3,7 +3,9 @@ import crypto from "node:crypto";
 
 const getSql = () => {
   if (!process.env.DATABASE_URL) {
-    throw new Error("DATABASE_URL is not configured");
+    const error = new Error("DATABASE_URL is not configured");
+    error.code = "DATABASE_URL_MISSING";
+    throw error;
   }
 
   return neon(process.env.DATABASE_URL);
@@ -81,6 +83,12 @@ const validateRsvp = (payload) => {
 export default async function handler(request, response) {
   try {
     const sql = getSql();
+
+    if (request.method === "GET" && request.query.health === "1") {
+      await sql`SELECT 1`;
+      return response.status(200).json({ ok: true, database: "connected" });
+    }
+
     await ensureSchema(sql);
 
     if (request.method === "GET") {
@@ -146,6 +154,14 @@ export default async function handler(request, response) {
     return response.status(405).json({ error: "Method not allowed." });
   } catch (error) {
     console.error(error);
+
+    if (error.code === "DATABASE_URL_MISSING") {
+      return response.status(500).json({
+        error: "RSVP database is not configured in Vercel yet.",
+        code: "DATABASE_URL_MISSING",
+      });
+    }
+
     return response.status(500).json({ error: "Something went wrong while saving the RSVP." });
   }
 }
