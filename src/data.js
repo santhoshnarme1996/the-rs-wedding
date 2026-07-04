@@ -1,12 +1,26 @@
 export const weddingData = {
   couple: ["Santhosh", "Rithikha"],
-  weddingStart: "2026-09-12T09:00:00",
+  weddingStart: "2026-09-13T09:00:00",
   weddingDate: "12 & 13 September 2026",
   heroLabel: [
     "With love in our hearts,",
     "we invite you to celebrate our wedding",
   ],
   families: ["Santhosh & family", "Rithikha & family"],
+  showKolamHalo: false,
+  showCoupleSection: false,
+  keyEvents: [
+    {
+      title: "Reception",
+      date: "September 12th",
+      time: "7:00 - 9:00 PM",
+    },
+    {
+      title: "Wedding",
+      date: "September 13th",
+      time: "Muhurtham · 9:00 - 10:30 AM",
+    },
+  ],
   invitation: {
     sanskrit: "समानी व आकूतिः\nसमाना हृदयानि वः",
     transliteration: "samani va akutih · samana hridayani vah",
@@ -16,10 +30,10 @@ export const weddingData = {
       "As our families gather and our story turns toward a new chapter, your presence and blessings would mean the world to us. We would be honoured to celebrate these sacred moments with you.",
   },
   venue: {
-    name: "Venue details coming soon",
+    name: "Shree Geetha Bhavan",
     description:
-      "The mandapam name, full address, nearby landmarks, and parking details will be shared here closer to the date.",
-    directionsHref: "#venue",
+      "Number 233, Old 334, Avvai Shanmugham Salai, Gopalapuram, Chennai, Tamil Nadu 600086, India.",
+    directionsHref: "https://maps.google.com/?q=Shree%20Geetha%20Bhavan%20233%20Old%20334%20Avvai%20Shanmugham%20Salai%20Gopalapuram%20Chennai%20600086",
   },
   days: [
     {
@@ -28,19 +42,19 @@ export const weddingData = {
       subtitle: "Ceremonies & welcome celebrations",
       events: [
         {
-          time: "Morning",
-          title: "Vratham",
+          time: "8:00 AM",
+          title: "Vratham & Naandhi",
           description:
-            "A sacred beginning - family blessings and the traditional pre-wedding vows.",
+            "A sacred beginning with family blessings, ancestral prayers, and traditional pre-wedding vows.",
         },
         {
-          time: "Morning",
-          title: "Naandi",
+          time: "10:30 - 11:30 AM",
+          title: "Nitchayadartham",
           description:
-            "A ceremony invoking the blessings of elders and ancestors for an auspicious union.",
+            "The formal engagement ceremony where both families bless and celebrate the promise of marriage.",
         },
         {
-          time: "Evening",
+          time: "7:00 - 9:00 PM",
           title: "Reception",
           description:
             "An evening of greetings, warmth, and celebration with family and friends.",
@@ -50,19 +64,19 @@ export const weddingData = {
     {
       date: "13",
       title: "Sunday · September",
-      subtitle: "Wedding rituals & evening gathering",
+      subtitle: "Wedding rituals & sacred Muhurtham",
       events: [
         {
-          time: "Morning · Muhurtham",
-          title: "Wedding Ceremony",
+          time: "7:00 AM",
+          title: "Kasi Yathrai & Oonjal",
           description:
-            "The sacred muhurtham - the tying of the maangalyam as we begin our new chapter together.",
+            "Playful and heartfelt rituals before the Muhurtham, filled with blessings, songs, and family joy.",
         },
         {
-          time: "Evening",
-          title: "Nalangu",
+          time: "9:00 - 10:30 AM",
+          title: "Muhurtham",
           description:
-            "A joyful post-wedding ritual of play, laughter, and blessings shared with family.",
+            "The auspicious Thula Lagnam wedding ceremony, with the tying of the maangalyam as we begin our new chapter together.",
         },
       ],
     },
@@ -76,9 +90,21 @@ export const weddingData = {
     },
     {
       tamil: "நாந்தி",
-      title: "Naandi",
+      title: "Naandhi",
       description:
         "Ancestors and married elders are honoured and invited to bless the union, ensuring the ceremony is conducted with their grace and goodwill.",
+    },
+    {
+      tamil: "நிச்சயதார்த்தம்",
+      title: "Nitchayadartham",
+      description:
+        "The engagement ceremony where the families formally affirm the wedding, exchange blessings, and begin the celebrations together.",
+    },
+    {
+      tamil: "காசி யாத்திரை & ஊஞ்சல்",
+      title: "Kasi Yathrai & Oonjal",
+      description:
+        "A beloved sequence of rituals: the groom is playfully brought back from his symbolic journey, and the couple is blessed on the swing with songs and family prayers.",
     },
     {
       tamil: "முகூர்த்தம்",
@@ -96,12 +122,6 @@ export const weddingData = {
       title: "Reception",
       description:
         "A joyful social celebration where the newlyweds are introduced to the wider circle of family and friends, who shower them with blessings.",
-    },
-    {
-      tamil: "நலங்கு",
-      title: "Nalangu",
-      description:
-        "A light-hearted ritual after the wedding, filled with playful games, turmeric, and blessings as both families welcome the couple into their new life together.",
     },
   ],
   people: [

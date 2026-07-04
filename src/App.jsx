@@ -127,23 +127,6 @@ function usePetals(canvasRef) {
   }, [canvasRef]);
 }
 
-function Thoranam() {
-  return (
-    <div className="thoranam" aria-hidden="true">
-      <div className="thoranam__line" />
-      <div className="thoranam__leaves">
-        {Array.from({ length: 20 }, (_, index) => (
-          <svg className="thoranam__leaf" key={index} viewBox="0 0 20 42">
-            <path d="M10 1C18 13 18 30 10 41C2 30 2 13 10 1Z" fill="#7e9d6e" />
-            <path d="M10 1C14 13 14 30 10 41C9 30 9 13 10 1Z" fill="#92b07d" />
-            <path d="M10 4L10 38" stroke="#5b7a4f" strokeWidth="0.8" opacity="0.5" />
-          </svg>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 function KolamHalo() {
   const petals = Array.from({ length: 8 }, (_, index) => index * 45);
   const innerPetals = Array.from({ length: 8 }, (_, index) => 22.5 + index * 45);
@@ -202,6 +185,70 @@ function VenuePin() {
   );
 }
 
+const menuItems = [
+  { href: "#top", label: "Home" },
+  { href: "#invitation", label: "Invitation" },
+  { href: "#events", label: "Events" },
+  { href: "#venue", label: "Venue" },
+  { href: "#rituals", label: "Rituals" },
+];
+
+function FloatingMenu() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isCompact, setIsCompact] = useState(false);
+
+  useEffect(() => {
+    const updateMode = () => {
+      const isNarrow = window.matchMedia("(max-width: 640px)").matches;
+      setIsCompact(window.scrollY > 90 || isNarrow);
+    };
+
+    updateMode();
+    window.addEventListener("scroll", updateMode, { passive: true });
+    window.addEventListener("resize", updateMode);
+
+    return () => {
+      window.removeEventListener("scroll", updateMode);
+      window.removeEventListener("resize", updateMode);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen) {
+      return undefined;
+    }
+
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") {
+        setIsOpen(false);
+      }
+    };
+
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [isOpen]);
+
+  return (
+    <nav className={`top-menu${isCompact ? " top-menu--compact" : ""}${isOpen ? " top-menu--open" : ""}`} aria-label="Wedding invite navigation">
+      <div className="top-menu__panel" id="floating-menu-links" aria-hidden={isCompact && !isOpen}>
+        {menuItems.map((item) => (
+          <a href={item.href} key={item.href} tabIndex={!isCompact || isOpen ? 0 : -1} onClick={() => setIsOpen(false)}>{item.label}</a>
+        ))}
+        <span className="top-menu__coming-soon">RSVP soon</span>
+      </div>
+      <button
+        className="top-menu__button"
+        type="button"
+        aria-expanded={isOpen}
+        aria-controls="floating-menu-links"
+        onClick={() => setIsOpen((current) => !current)}
+      >
+        <span>{isOpen ? "Close" : "Menu"}</span>
+      </button>
+    </nav>
+  );
+}
+
 function App() {
   const countdown = useCountdown(weddingData.weddingStart);
   const petalCanvasRef = useRef(null);
@@ -224,13 +271,16 @@ function App() {
 
   return (
     <div className="invite-page">
+      <FloatingMenu />
       <section className="hero" id="top">
-        <img ref={heroImageRef} className="hero__temple" src="/hero-tanjai-floral-hd.png" alt="" />
+        <picture className="hero__picture" aria-hidden="true">
+          <source media="(max-width: 640px)" srcSet="/hero-wedding-couple-mobile.png" />
+          <img ref={heroImageRef} className="hero__temple" src="/hero-wedding-couple-desktop.png" alt="" />
+        </picture>
         <div className="hero__wash" />
         <div className="hero__glow" />
         <canvas className="hero__petals" ref={petalCanvasRef} aria-hidden="true" />
-        <Thoranam />
-        <KolamHalo />
+        {weddingData.showKolamHalo && <KolamHalo />}
         <div className="hero__legibility" />
 
         <div className="hero__content">
@@ -254,14 +304,29 @@ function App() {
             <div><strong>{countdown.hours}</strong><span>Hours</span></div>
             <div><strong>{countdown.minutes}</strong><span>Minutes</span></div>
           </div>
-          <a className="scroll-invite" href="#invitation">
-            <span>Our invitation</span>
+          <a className="scroll-invite" href="#events">
+            <span>Key events</span>
             <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m3 6 5 5 5-5" /></svg>
           </a>
         </div>
       </section>
 
       <main>
+        <section className="section key-events" id="events">
+          <div className="section__narrow" data-reveal>
+            <p className="eyebrow">Join us for</p>
+            <div className="key-events__list">
+              {weddingData.keyEvents.map((event) => (
+                <article className="key-event" key={event.title}>
+                  <h2>{event.title}</h2>
+                  <p>{event.date}</p>
+                  <span>{event.time}</span>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <section className="section invitation" id="invitation">
           <div className="section__narrow" data-reveal>
             <OrnamentDivider />
@@ -338,28 +403,30 @@ function App() {
           </div>
         </section>
 
-        <section className="section story" id="story">
-          <div className="section__wide">
-            <div className="section-heading" data-reveal>
-              <p className="eyebrow">Meet the couple</p>
-              <h2>Two cities, one story, a weekend of blessings</h2>
-              <p>Rooted in tradition and connected across the places we call home - Bombay, Chennai, and the Bay Area - this celebration brings together heritage, laughter, and the people we love most.</p>
+        {weddingData.showCoupleSection && (
+          <section className="section story" id="story">
+            <div className="section__wide">
+              <div className="section-heading" data-reveal>
+                <p className="eyebrow">Meet the couple</p>
+                <h2>Two cities, one story, a weekend of blessings</h2>
+                <p>Rooted in tradition and connected across the places we call home - Bombay, Chennai, and the Bay Area - this celebration brings together heritage, laughter, and the people we love most.</p>
+              </div>
+              <div className="people-grid">
+                {weddingData.people.map((person, index) => (
+                  <article className={`person-card person-card--${index}`} data-reveal key={person.name}>
+                    <div className="person-card__image"><span>{person.imageLabel}</span></div>
+                    <div className="person-card__body">
+                      <p className="eyebrow">{person.role}</p>
+                      <h3>{person.name}</h3>
+                      <p className="person-card__location">{person.location}</p>
+                      <p>{person.description}</p>
+                    </div>
+                  </article>
+                ))}
+              </div>
             </div>
-            <div className="people-grid">
-              {weddingData.people.map((person, index) => (
-                <article className={`person-card person-card--${index}`} data-reveal key={person.name}>
-                  <div className="person-card__image"><span>{person.imageLabel}</span></div>
-                  <div className="person-card__body">
-                    <p className="eyebrow">{person.role}</p>
-                    <h3>{person.name}</h3>
-                    <p className="person-card__location">{person.location}</p>
-                    <p>{person.description}</p>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         <section className="section closing">
           <div className="section__narrow" data-reveal>
