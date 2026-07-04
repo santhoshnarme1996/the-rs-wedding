@@ -426,6 +426,7 @@ function RsvpCard({ invite }) {
 }
 
 function AdminPortal({ requireSuper = false } = {}) {
+  const importInputRef = useRef(null);
   const [credentials, setCredentials] = useState({ username: "", password: "" });
   const [token, setToken] = useState(() => window.localStorage.getItem("weddingAdminToken") || "");
   const [account, setAccount] = useState(() => {
@@ -447,7 +448,6 @@ function AdminPortal({ requireSuper = false } = {}) {
     eventMode: "both",
     notes: "",
   });
-  const [bulkText, setBulkText] = useState("");
 
   const logout = () => {
     window.localStorage.removeItem("weddingAdminToken");
@@ -563,6 +563,84 @@ function AdminPortal({ requireSuper = false } = {}) {
 
   const inviteUrl = (invitee) => `${window.location.origin}/?invite=${invitee.inviteCode}`;
 
+  const accountFamily = account?.family === "all" ? inviteeForm.hostFamily : account?.family || inviteeForm.hostFamily;
+
+  const normalizeEventMode = (value) => {
+    const normalized = String(value || "both").trim().toLowerCase();
+
+    if (["reception", "reception only"].includes(normalized)) {
+      return "reception";
+    }
+
+    if (["wedding", "muhurtham", "wedding only", "muhurtham only"].includes(normalized)) {
+      return "wedding";
+    }
+
+    return "both";
+  };
+
+  const normalizeHostFamily = (value) => {
+    if (account?.family && account.family !== "all") {
+      return account.family;
+    }
+
+    const normalized = String(value || accountFamily).trim().toLowerCase();
+
+    return normalized === "rithikha" ? "rithikha" : "santhosh";
+  };
+
+  const valueFromRow = (row, keys) => {
+    const entries = Object.entries(row).reduce((accumulator, [key, value]) => {
+      accumulator[key.toLowerCase().replace(/[^a-z0-9]/g, "")] = value;
+      return accumulator;
+    }, {});
+
+    return keys.map((key) => entries[key]).find((value) => String(value || "").trim()) || "";
+  };
+
+  const normalizeImportedInvitee = (row) => ({
+    name: String(valueFromRow(row, ["guestname", "name", "inviteename"]) || "").trim(),
+    phone: String(valueFromRow(row, ["phone", "phonenumber", "mobile", "mobilenumber"]) || "").trim(),
+    email: String(valueFromRow(row, ["email", "emailaddress"]) || "").trim(),
+    eventMode: normalizeEventMode(valueFromRow(row, ["inviteevents", "events", "event", "rsvpfor"])),
+    hostFamily: normalizeHostFamily(valueFromRow(row, ["hostfamily", "family"])),
+    notes: String(valueFromRow(row, ["notes", "note"]) || "").trim(),
+  });
+
+  const downloadInviteeTemplate = async () => {
+    const XLSX = await import("xlsx");
+    const rows = [
+      {
+        "Guest Name": "Example Guest - replace me",
+        Phone: "",
+        Email: "",
+        "Invite Events": "both",
+        "Host Family": accountFamily,
+        Notes: "Optional",
+      },
+      {
+        "Guest Name": "",
+        Phone: "",
+        Email: "",
+        "Invite Events": "reception",
+        "Host Family": accountFamily,
+        Notes: "",
+      },
+    ];
+    const worksheet = XLSX.utils.json_to_sheet(rows);
+    worksheet["!cols"] = [
+      { wch: 30 },
+      { wch: 18 },
+      { wch: 28 },
+      { wch: 18 },
+      { wch: 18 },
+      { wch: 30 },
+    ];
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Invitees");
+    XLSX.writeFile(workbook, "wedding-invitee-template.xlsx");
+  };
+
   const createInvitees = async (entries) => {
     setStatus("loading");
     setMessage("");
@@ -604,34 +682,38 @@ function AdminPortal({ requireSuper = false } = {}) {
     }
   };
 
-  const parseBulkInvitees = () => bulkText
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .map((line) => {
-      const [name, phone = "", email = "", eventMode = "both", notes = ""] = line.split(/\t|,/).map((value) => value.trim());
-      return {
-        name,
-        phone,
-        email,
-        eventMode: eventMode.toLowerCase() || "both",
-        notes,
-        hostFamily: inviteeForm.hostFamily,
-      };
-    });
+  const importInviteesFromFile = async (event) => {
+    const [file] = event.target.files || [];
 
-  const addBulkInvitees = async () => {
-    const entries = parseBulkInvitees();
-
-    if (!entries.length) {
-      setMessage("Paste at least one guest row.");
+    if (!file) {
       return;
     }
 
-    const didCreate = await createInvitees(entries);
+    try {
+      const buffer = await file.arrayBuffer();
+      const XLSX = await import("xlsx");
+      const workbook = XLSX.read(buffer, { type: "array" });
+      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+      const entries = rows
+        .map(normalizeImportedInvitee)
+        .filter((entry) => entry.name && !entry.name.toLowerCase().includes("replace me"));
 
-    if (didCreate) {
-      setBulkText("");
+      if (!entries.length) {
+        setMessage("No guest names found in the uploaded sheet.");
+        return;
+      }
+
+      const didCreate = await createInvitees(entries);
+
+      if (didCreate) {
+        setMessage(`Imported ${entries.length} invitee${entries.length === 1 ? "" : "s"}.`);
+      }
+    } catch (error) {
+      setStatus("error");
+      setMessage(error.message || "Unable to read the Excel file.");
+    } finally {
+      event.target.value = "";
     }
   };
 
@@ -715,48 +797,66 @@ function AdminPortal({ requireSuper = false } = {}) {
         <div className="admin-table-card admin-form-card">
           <div className="admin-table-header">
             <h2>Add invitees</h2>
-            <span>One-by-one or bulk paste</span>
+            <span>Manual entry or Excel import</span>
           </div>
-          <form className="admin-invitee-form" onSubmit={addInvitee}>
-            <label className="rsvp-field">
-              <span>Guest name</span>
-              <input value={inviteeForm.name} onChange={(event) => setInviteeForm((current) => ({ ...current, name: event.target.value }))} required />
-            </label>
-            <label className="rsvp-field">
-              <span>Phone</span>
-              <input value={inviteeForm.phone} onChange={(event) => setInviteeForm((current) => ({ ...current, phone: event.target.value }))} />
-            </label>
-            <label className="rsvp-field">
-              <span>Email</span>
-              <input type="email" value={inviteeForm.email} onChange={(event) => setInviteeForm((current) => ({ ...current, email: event.target.value }))} />
-            </label>
-            <label className="rsvp-field">
-              <span>Family</span>
-              <select value={inviteeForm.hostFamily} disabled={account?.family !== "all"} onChange={(event) => setInviteeForm((current) => ({ ...current, hostFamily: event.target.value }))}>
-                <option value="santhosh">Santhosh</option>
-                <option value="rithikha">Rithikha</option>
-              </select>
-            </label>
-            <label className="rsvp-field">
-              <span>Invite events</span>
-              <select value={inviteeForm.eventMode} onChange={(event) => setInviteeForm((current) => ({ ...current, eventMode: event.target.value }))}>
-                <option value="both">Reception + Wedding</option>
-                <option value="reception">Reception only</option>
-                <option value="wedding">Wedding only</option>
-              </select>
-            </label>
-            <label className="rsvp-field admin-form-wide">
-              <span>Notes</span>
-              <input value={inviteeForm.notes} onChange={(event) => setInviteeForm((current) => ({ ...current, notes: event.target.value }))} />
-            </label>
-            <button className="button" type="submit" disabled={status === "loading"}>Add invitee</button>
-          </form>
-          <div className="admin-bulk">
-            <label className="rsvp-field">
-              <span>Bulk paste</span>
-              <textarea value={bulkText} onChange={(event) => setBulkText(event.target.value)} placeholder="Name, phone, email, both&#10;Name, phone, email, reception&#10;Name, phone, email, wedding" />
-            </label>
-            <button className="button button--ghost" type="button" onClick={addBulkInvitees} disabled={status === "loading"}>Add bulk invitees</button>
+          <div className="admin-entry-grid">
+            <form className="admin-entry-panel admin-invitee-form" onSubmit={addInvitee}>
+              <div>
+                <p className="admin-panel-kicker">Quick add</p>
+                <h3>One household or guest</h3>
+                <p className="admin-panel-copy">Use this when you just need to add one invite link quickly.</p>
+              </div>
+              <label className="rsvp-field admin-form-wide">
+                <span>Guest name</span>
+                <input value={inviteeForm.name} onChange={(event) => setInviteeForm((current) => ({ ...current, name: event.target.value }))} placeholder="Required" required />
+              </label>
+              <label className="rsvp-field">
+                <span>Phone</span>
+                <input value={inviteeForm.phone} onChange={(event) => setInviteeForm((current) => ({ ...current, phone: event.target.value }))} placeholder="Optional" />
+              </label>
+              <label className="rsvp-field">
+                <span>Email</span>
+                <input type="email" value={inviteeForm.email} onChange={(event) => setInviteeForm((current) => ({ ...current, email: event.target.value }))} placeholder="Optional" />
+              </label>
+              <label className="rsvp-field">
+                <span>Family</span>
+                <select value={inviteeForm.hostFamily} disabled={account?.family !== "all"} onChange={(event) => setInviteeForm((current) => ({ ...current, hostFamily: event.target.value }))}>
+                  <option value="santhosh">Santhosh</option>
+                  <option value="rithikha">Rithikha</option>
+                </select>
+              </label>
+              <label className="rsvp-field">
+                <span>Invite events</span>
+                <select value={inviteeForm.eventMode} onChange={(event) => setInviteeForm((current) => ({ ...current, eventMode: event.target.value }))}>
+                  <option value="both">Reception + Wedding</option>
+                  <option value="reception">Reception only</option>
+                  <option value="wedding">Wedding only</option>
+                </select>
+              </label>
+              <label className="rsvp-field admin-form-wide">
+                <span>Notes</span>
+                <input value={inviteeForm.notes} onChange={(event) => setInviteeForm((current) => ({ ...current, notes: event.target.value }))} placeholder="Optional" />
+              </label>
+              <button className="button" type="submit" disabled={status === "loading"}>Add invitee</button>
+            </form>
+
+            <aside className="admin-entry-panel admin-import-panel">
+              <div>
+                <p className="admin-panel-kicker">Excel import</p>
+                <h3>Upload a guest sheet</h3>
+                <p className="admin-panel-copy">Download the template, fill only the names if that is all you have, then upload it back here.</p>
+              </div>
+              <div className="admin-import-steps">
+                <span>Required: Guest Name</span>
+                <span>Optional: Phone, Email, Notes</span>
+                <span>Events: both, reception, or wedding</span>
+              </div>
+              <div className="admin-import-actions">
+                <button className="button button--ghost" type="button" onClick={downloadInviteeTemplate}>Download template</button>
+                <button className="button" type="button" onClick={() => importInputRef.current?.click()} disabled={status === "loading"}>Upload Excel</button>
+                <input ref={importInputRef} className="admin-file-input" type="file" accept=".xlsx,.xls,.csv" onChange={importInviteesFromFile} />
+              </div>
+            </aside>
           </div>
         </div>
 

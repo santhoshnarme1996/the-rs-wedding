@@ -976,6 +976,42 @@ h2 {
   overflow: visible;
 }
 
+.admin-entry-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(300px, 0.75fr);
+  gap: 18px;
+  padding: 22px;
+}
+
+.admin-entry-panel {
+  border: 1px solid rgba(189, 150, 72, 0.18);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.48);
+  box-shadow: 0 14px 34px rgba(90, 45, 35, 0.06);
+}
+
+.admin-panel-kicker {
+  margin: 0 0 7px;
+  color: #a84a5d;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.admin-entry-panel h3 {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1;
+}
+
+.admin-panel-copy {
+  margin: 9px 0 0;
+  color: #7c665d;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
 .admin-table-header {
   display: flex;
   align-items: center;
@@ -1002,7 +1038,7 @@ h2 {
 
 .admin-invitee-form {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
   padding: 24px;
 }
@@ -1015,6 +1051,48 @@ h2 {
   align-self: end;
   margin-top: 0;
   min-height: 48px;
+}
+
+.admin-import-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 24px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(207, 111, 129, 0.14), transparent 40%),
+    rgba(255, 255, 255, 0.42);
+}
+
+.admin-import-steps {
+  display: grid;
+  gap: 9px;
+  margin: 4px 0 0;
+}
+
+.admin-import-steps span {
+  display: block;
+  padding: 10px 12px;
+  border: 1px solid rgba(189, 150, 72, 0.14);
+  border-radius: 14px;
+  background: rgba(255, 250, 247, 0.58);
+  color: #6b4034;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.admin-import-actions {
+  display: grid;
+  gap: 10px;
+}
+
+.admin-import-actions .button {
+  width: 100%;
+  margin-top: 0;
+}
+
+.admin-file-input {
+  display: none;
 }
 
 .admin-bulk {
@@ -1523,9 +1601,18 @@ h2 {
     flex-direction: column;
   }
 
+  .admin-entry-grid {
+    grid-template-columns: 1fr;
+    padding: 14px;
+  }
+
   .admin-invitee-form,
   .admin-bulk {
     grid-template-columns: 1fr;
+    padding: 18px;
+  }
+
+  .admin-import-panel {
     padding: 18px;
   }
 
