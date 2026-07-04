@@ -425,15 +425,18 @@ function RsvpCard({ invite }) {
   );
 }
 
-function AdminPortal() {
+function AdminPortal({ requireSuper = false } = {}) {
   const [credentials, setCredentials] = useState({ username: "", password: "" });
   const [token, setToken] = useState(() => window.localStorage.getItem("weddingAdminToken") || "");
   const [account, setAccount] = useState(() => {
     const saved = window.localStorage.getItem("weddingAdminAccount");
     return saved ? JSON.parse(saved) : null;
   });
-  const [status, setStatus] = useState(token ? "loading" : "idle");
-  const [message, setMessage] = useState("");
+  const hasRequiredScope = !requireSuper || account?.family === "all";
+  const [status, setStatus] = useState(token && hasRequiredScope ? "loading" : "idle");
+  const [message, setMessage] = useState(() => (
+    token && !hasRequiredScope ? "Super view requires the all-family developer account." : ""
+  ));
   const [dashboard, setDashboard] = useState(null);
   const [invitees, setInvitees] = useState([]);
   const [inviteeForm, setInviteeForm] = useState({
@@ -495,10 +498,17 @@ function AdminPortal() {
   };
 
   useEffect(() => {
-    if (token) {
+    if (token && hasRequiredScope) {
       loadDashboard(token);
     }
-  }, [token]);
+  }, [token, hasRequiredScope]);
+
+  useEffect(() => {
+    if (token && !hasRequiredScope) {
+      setStatus("idle");
+      setMessage("Super view requires the all-family developer account.");
+    }
+  }, [token, hasRequiredScope]);
 
   useEffect(() => {
     if (account?.family && account.family !== "all") {
@@ -530,6 +540,10 @@ function AdminPortal() {
 
       if (!response.ok) {
         throw new Error(payload.error || "Unable to sign in.");
+      }
+
+      if (requireSuper && payload.account?.family !== "all") {
+        throw new Error("Please sign in with the all-family developer account for /super.");
       }
 
       window.localStorage.setItem("weddingAdminToken", payload.token);
@@ -645,13 +659,13 @@ function AdminPortal() {
     }
   };
 
-  if (!token) {
+  if (!token || !hasRequiredScope) {
     return (
       <main className="admin-page">
         <section className="admin-login">
           <p className="admin-eyebrow">Private admin</p>
-          <h1>RSVP Dashboard</h1>
-          <p>Sign in to view guest responses and event totals.</p>
+          <h1>{requireSuper ? "Super Dashboard" : "RSVP Dashboard"}</h1>
+          <p>{requireSuper ? "Sign in with the all-family developer account to view everything." : "Sign in to view guest responses and event totals."}</p>
           <form className="admin-card" onSubmit={login}>
             <label className="rsvp-field">
               <span>Username</span>
@@ -677,8 +691,8 @@ function AdminPortal() {
         <header className="admin-header">
           <div>
             <p className="admin-eyebrow">Private admin</p>
-            <h1>RSVP Dashboard</h1>
-            <p>Track invitees, RSVP responses, and family-specific invite links.</p>
+            <h1>{requireSuper ? "Super Dashboard" : "RSVP Dashboard"}</h1>
+            <p>{requireSuper ? "Developer view across both families, invitees, and RSVP responses." : "Track invitees, RSVP responses, and family-specific invite links."}</p>
             {account && <p className="admin-scope">Signed in as {account.username} · {account.family === "all" ? "All families" : `${account.family} family`}</p>}
           </div>
           <div className="admin-actions">
@@ -952,6 +966,10 @@ function App() {
 
   if (window.location.pathname === "/admin") {
     return <AdminPortal />;
+  }
+
+  if (window.location.pathname === "/super") {
+    return <AdminPortal requireSuper />;
   }
 
   const isRithikhaInvite = invite?.hostFamily === "rithikha";
