@@ -17,11 +17,20 @@ export default async function handler(request, response) {
 
     const { username = "", password = "" } = normalizeBody(request.body);
 
-    if (!validateAdminCredentials(String(username), String(password))) {
+    const account = validateAdminCredentials(String(username), String(password));
+
+    if (!account) {
       return response.status(401).json({ error: "Invalid admin credentials." });
     }
 
-    return response.status(200).json({ token: createAdminToken(String(username)) });
+    return response.status(200).json({
+      token: createAdminToken(account),
+      account: {
+        username: account.username,
+        family: account.family,
+        role: account.role,
+      },
+    });
   } catch (error) {
     return handleAdminError(error, response);
   }

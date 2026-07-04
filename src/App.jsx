@@ -196,6 +196,7 @@ const emptyRsvp = {
   id: "",
   name: "",
   phone: "",
+  email: "",
   guestCount: "1",
   events: {
     reception: true,
@@ -203,15 +204,48 @@ const emptyRsvp = {
   },
 };
 
-function RsvpCard() {
+const eventMatchesInvite = (event, invite) => {
+  if (!invite) {
+    return true;
+  }
+
+  if (event.id === "reception") {
+    return invite.invitedEvents.reception;
+  }
+
+  if (event.id === "wedding") {
+    return invite.invitedEvents.wedding;
+  }
+
+  return true;
+};
+
+function RsvpCard({ invite }) {
   const [form, setForm] = useState(emptyRsvp);
   const [savedRsvp, setSavedRsvp] = useState(null);
   const [isEditing, setIsEditing] = useState(true);
   const [status, setStatus] = useState("idle");
   const [message, setMessage] = useState("");
+  const storageKey = invite ? `weddingRsvpId:${invite.inviteCode}` : "weddingRsvpId";
+  const invitedRsvpEvents = weddingData.rsvpEvents.filter((event) => eventMatchesInvite(event, invite));
 
   useEffect(() => {
-    const savedId = window.localStorage.getItem("weddingRsvpId");
+    if (!invite) {
+      return undefined;
+    }
+
+    setForm({
+      ...emptyRsvp,
+      name: invite.guestName || "",
+      phone: invite.phone || "",
+      email: invite.email || "",
+      events: {
+        reception: invite.invitedEvents.reception,
+        wedding: invite.invitedEvents.wedding,
+      },
+    });
+
+    const savedId = window.localStorage.getItem(storageKey);
 
     if (!savedId) {
       return undefined;
@@ -220,7 +254,7 @@ function RsvpCard() {
     let isMounted = true;
     setStatus("loading");
 
-    fetch(`/api/rsvp?id=${encodeURIComponent(savedId)}`)
+    fetch(`/api/rsvp?inviteCode=${encodeURIComponent(invite.inviteCode)}`)
       .then(async (response) => {
         if (!response.ok) {
           throw new Error("Unable to load saved RSVP.");
@@ -243,14 +277,14 @@ function RsvpCard() {
           return;
         }
 
-        window.localStorage.removeItem("weddingRsvpId");
+        window.localStorage.removeItem(storageKey);
         setStatus("idle");
       });
 
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [invite?.inviteCode]);
 
   const updateField = (field, value) => {
     setForm((current) => ({ ...current, [field]: value }));
@@ -277,6 +311,7 @@ function RsvpCard() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...form,
+          inviteCode: invite?.inviteCode,
           guestCount: Number.parseInt(form.guestCount, 10),
         }),
       });
@@ -287,7 +322,7 @@ function RsvpCard() {
         throw new Error(payload.error || "Unable to save RSVP.");
       }
 
-      window.localStorage.setItem("weddingRsvpId", payload.rsvp.id);
+      window.localStorage.setItem(storageKey, payload.rsvp.id);
       setSavedRsvp(payload.rsvp);
       setForm({ ...payload.rsvp, guestCount: String(payload.rsvp.guestCount) });
       setIsEditing(false);
@@ -308,6 +343,16 @@ function RsvpCard() {
     );
   }
 
+  if (!invite) {
+    return (
+      <div className="rsvp-card rsvp-card--saved">
+        <p className="rsvp-card__eyebrow">RSVP</p>
+        <h3>Personalized RSVP</h3>
+        <p className="rsvp-card__intro">Please use the invite link shared by our families to RSVP.</p>
+      </div>
+    );
+  }
+
   if (savedRsvp && !isEditing) {
     return (
       <div className="rsvp-card rsvp-card--saved">
@@ -316,8 +361,9 @@ function RsvpCard() {
         <dl className="rsvp-summary">
           <div><dt>Name</dt><dd>{savedRsvp.name}</dd></div>
           <div><dt>Phone</dt><dd>{savedRsvp.phone}</dd></div>
+          {savedRsvp.email && <div><dt>Email</dt><dd>{savedRsvp.email}</dd></div>}
           <div><dt>Guests</dt><dd>{savedRsvp.guestCount}</dd></div>
-          {weddingData.rsvpEvents.map((rsvpEvent) => (
+          {invitedRsvpEvents.map((rsvpEvent) => (
             <div key={rsvpEvent.id}>
               <dt>{rsvpEvent.title}</dt>
               <dd>{savedRsvp.events[rsvpEvent.id] ? "Attending" : "Not attending"}</dd>
@@ -349,13 +395,18 @@ function RsvpCard() {
       </label>
 
       <label className="rsvp-field">
+        <span>Email</span>
+        <input type="email" value={form.email} onChange={(event) => updateField("email", event.target.value)} />
+      </label>
+
+      <label className="rsvp-field">
         <span>Number of guests</span>
         <input type="number" min="1" max="20" value={form.guestCount} onChange={(event) => updateField("guestCount", event.target.value)} required />
       </label>
 
       <fieldset className="rsvp-events">
         <legend>Events attending</legend>
-        {weddingData.rsvpEvents.map((rsvpEvent) => (
+        {invitedRsvpEvents.map((rsvpEvent) => (
           <label className="rsvp-event" key={rsvpEvent.id}>
             <input type="checkbox" checked={form.events[rsvpEvent.id]} onChange={() => updateEvent(rsvpEvent.id)} />
             <span>
@@ -377,14 +428,31 @@ function RsvpCard() {
 function AdminPortal() {
   const [credentials, setCredentials] = useState({ username: "", password: "" });
   const [token, setToken] = useState(() => window.localStorage.getItem("weddingAdminToken") || "");
+  const [account, setAccount] = useState(() => {
+    const saved = window.localStorage.getItem("weddingAdminAccount");
+    return saved ? JSON.parse(saved) : null;
+  });
   const [status, setStatus] = useState(token ? "loading" : "idle");
   const [message, setMessage] = useState("");
   const [dashboard, setDashboard] = useState(null);
+  const [invitees, setInvitees] = useState([]);
+  const [inviteeForm, setInviteeForm] = useState({
+    name: "",
+    phone: "",
+    email: "",
+    hostFamily: "santhosh",
+    eventMode: "both",
+    notes: "",
+  });
+  const [bulkText, setBulkText] = useState("");
 
   const logout = () => {
     window.localStorage.removeItem("weddingAdminToken");
+    window.localStorage.removeItem("weddingAdminAccount");
     setToken("");
+    setAccount(null);
     setDashboard(null);
+    setInvitees([]);
     setStatus("idle");
   };
 
@@ -397,24 +465,32 @@ function AdminPortal() {
     setMessage("");
 
     try {
-      const response = await fetch("/api/admin/rsvps", {
-        headers: { Authorization: `Bearer ${adminToken}` },
-      });
-      const payload = await response.json();
+      const [rsvpResponse, inviteeResponse] = await Promise.all([
+        fetch("/api/admin/rsvps", {
+          headers: { Authorization: `Bearer ${adminToken}` },
+        }),
+        fetch("/api/admin/invitees", {
+          headers: { Authorization: `Bearer ${adminToken}` },
+        }),
+      ]);
 
-      if (!response.ok) {
-        if (response.status === 401) {
+      const rsvpPayload = await rsvpResponse.json();
+      const inviteePayload = await inviteeResponse.json();
+
+      if (!rsvpResponse.ok || !inviteeResponse.ok) {
+        if (rsvpResponse.status === 401 || inviteeResponse.status === 401) {
           logout();
         }
 
-        throw new Error(payload.error || "Unable to load RSVP data.");
+        throw new Error(rsvpPayload.error || inviteePayload.error || "Unable to load admin data.");
       }
 
-      setDashboard(payload);
+      setDashboard(rsvpPayload);
+      setInvitees(inviteePayload.invitees);
       setStatus("idle");
     } catch (error) {
       setStatus("error");
-      setMessage(error.message || "Unable to load RSVP data.");
+      setMessage(error.message || "Unable to load admin data.");
     }
   };
 
@@ -423,6 +499,21 @@ function AdminPortal() {
       loadDashboard(token);
     }
   }, [token]);
+
+  useEffect(() => {
+    if (account?.family && account.family !== "all") {
+      setInviteeForm((current) => ({ ...current, hostFamily: account.family }));
+    }
+  }, [account?.family]);
+
+  const authedFetch = (url, options = {}) =>
+    fetch(url, {
+      ...options,
+      headers: {
+        ...(options.headers || {}),
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
   const login = async (event) => {
     event.preventDefault();
@@ -442,6 +533,8 @@ function AdminPortal() {
       }
 
       window.localStorage.setItem("weddingAdminToken", payload.token);
+      window.localStorage.setItem("weddingAdminAccount", JSON.stringify(payload.account));
+      setAccount(payload.account);
       setToken(payload.token);
     } catch (error) {
       setStatus("error");
@@ -453,6 +546,104 @@ function AdminPortal() {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(value)) : "Not available";
+
+  const inviteUrl = (invitee) => `${window.location.origin}/?invite=${invitee.inviteCode}`;
+
+  const createInvitees = async (entries) => {
+    setStatus("loading");
+    setMessage("");
+
+    try {
+      const response = await authedFetch("/api/admin/invitees", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ invitees: entries }),
+      });
+      const payload = await response.json();
+
+      if (!response.ok) {
+        throw new Error(payload.error || "Unable to add invitees.");
+      }
+
+      await loadDashboard();
+      setStatus("idle");
+      return true;
+    } catch (error) {
+      setStatus("error");
+      setMessage(error.message || "Unable to add invitees.");
+      return false;
+    }
+  };
+
+  const addInvitee = async (event) => {
+    event.preventDefault();
+    const didCreate = await createInvitees([inviteeForm]);
+
+    if (didCreate) {
+      setInviteeForm((current) => ({
+        ...current,
+        name: "",
+        phone: "",
+        email: "",
+        notes: "",
+      }));
+    }
+  };
+
+  const parseBulkInvitees = () => bulkText
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const [name, phone = "", email = "", eventMode = "both", notes = ""] = line.split(/\t|,/).map((value) => value.trim());
+      return {
+        name,
+        phone,
+        email,
+        eventMode: eventMode.toLowerCase() || "both",
+        notes,
+        hostFamily: inviteeForm.hostFamily,
+      };
+    });
+
+  const addBulkInvitees = async () => {
+    const entries = parseBulkInvitees();
+
+    if (!entries.length) {
+      setMessage("Paste at least one guest row.");
+      return;
+    }
+
+    const didCreate = await createInvitees(entries);
+
+    if (didCreate) {
+      setBulkText("");
+    }
+  };
+
+  const toggleInviteSent = async (invitee) => {
+    setInvitees((current) => current.map((item) => (
+      item.id === invitee.id ? { ...item, inviteSent: !item.inviteSent } : item
+    )));
+
+    try {
+      const response = await authedFetch("/api/admin/invitees", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: invitee.id, inviteSent: !invitee.inviteSent }),
+      });
+
+      if (!response.ok) {
+        const payload = await response.json();
+        throw new Error(payload.error || "Unable to update invite status.");
+      }
+    } catch (error) {
+      setMessage(error.message || "Unable to update invite status.");
+      setInvitees((current) => current.map((item) => (
+        item.id === invitee.id ? { ...item, inviteSent: invitee.inviteSent } : item
+      )));
+    }
+  };
 
   if (!token) {
     return (
@@ -487,7 +678,8 @@ function AdminPortal() {
           <div>
             <p className="admin-eyebrow">Private admin</p>
             <h1>RSVP Dashboard</h1>
-            <p>Track responses for Reception and Wedding / Muhurtham.</p>
+            <p>Track invitees, RSVP responses, and family-specific invite links.</p>
+            {account && <p className="admin-scope">Signed in as {account.username} · {account.family === "all" ? "All families" : `${account.family} family`}</p>}
           </div>
           <div className="admin-actions">
             <button className="button button--ghost" type="button" onClick={() => loadDashboard()} disabled={status === "loading"}>Refresh</button>
@@ -498,15 +690,108 @@ function AdminPortal() {
         {message && <p className="admin-message">{message}</p>}
 
         <div className="admin-stats">
+          <article><span>Invitees</span><strong>{invitees.length}</strong></article>
+          <article><span>Invited</span><strong>{invitees.filter((invitee) => invitee.inviteSent).length}</strong></article>
           <article><span>Total RSVPs</span><strong>{dashboard?.summary.totalRsvps ?? 0}</strong></article>
           <article><span>Total Guests</span><strong>{dashboard?.summary.totalGuests ?? 0}</strong></article>
           <article><span>Reception</span><strong>{dashboard?.summary.receptionGuests ?? 0}</strong></article>
           <article><span>Wedding</span><strong>{dashboard?.summary.weddingGuests ?? 0}</strong></article>
         </div>
 
+        <div className="admin-table-card admin-form-card">
+          <div className="admin-table-header">
+            <h2>Add invitees</h2>
+            <span>One-by-one or bulk paste</span>
+          </div>
+          <form className="admin-invitee-form" onSubmit={addInvitee}>
+            <label className="rsvp-field">
+              <span>Guest name</span>
+              <input value={inviteeForm.name} onChange={(event) => setInviteeForm((current) => ({ ...current, name: event.target.value }))} required />
+            </label>
+            <label className="rsvp-field">
+              <span>Phone</span>
+              <input value={inviteeForm.phone} onChange={(event) => setInviteeForm((current) => ({ ...current, phone: event.target.value }))} />
+            </label>
+            <label className="rsvp-field">
+              <span>Email</span>
+              <input type="email" value={inviteeForm.email} onChange={(event) => setInviteeForm((current) => ({ ...current, email: event.target.value }))} />
+            </label>
+            <label className="rsvp-field">
+              <span>Family</span>
+              <select value={inviteeForm.hostFamily} disabled={account?.family !== "all"} onChange={(event) => setInviteeForm((current) => ({ ...current, hostFamily: event.target.value }))}>
+                <option value="santhosh">Santhosh</option>
+                <option value="rithikha">Rithikha</option>
+              </select>
+            </label>
+            <label className="rsvp-field">
+              <span>Invite events</span>
+              <select value={inviteeForm.eventMode} onChange={(event) => setInviteeForm((current) => ({ ...current, eventMode: event.target.value }))}>
+                <option value="both">Reception + Wedding</option>
+                <option value="reception">Reception only</option>
+                <option value="wedding">Wedding only</option>
+              </select>
+            </label>
+            <label className="rsvp-field admin-form-wide">
+              <span>Notes</span>
+              <input value={inviteeForm.notes} onChange={(event) => setInviteeForm((current) => ({ ...current, notes: event.target.value }))} />
+            </label>
+            <button className="button" type="submit" disabled={status === "loading"}>Add invitee</button>
+          </form>
+          <div className="admin-bulk">
+            <label className="rsvp-field">
+              <span>Bulk paste</span>
+              <textarea value={bulkText} onChange={(event) => setBulkText(event.target.value)} placeholder="Name, phone, email, both&#10;Name, phone, email, reception&#10;Name, phone, email, wedding" />
+            </label>
+            <button className="button button--ghost" type="button" onClick={addBulkInvitees} disabled={status === "loading"}>Add bulk invitees</button>
+          </div>
+        </div>
+
         <div className="admin-table-card">
           <div className="admin-table-header">
-            <h2>Guest responses</h2>
+            <h2>Invitee list</h2>
+            <span>{status === "loading" ? "Loading..." : `${invitees.length} records`}</span>
+          </div>
+          <div className="admin-table-wrap">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Invited</th>
+                  <th>Responded</th>
+                  <th>Name</th>
+                  <th>Phone</th>
+                  <th>Email</th>
+                  <th>Reception</th>
+                  <th>Wedding</th>
+                  <th>Family</th>
+                  <th>Invite link</th>
+                </tr>
+              </thead>
+              <tbody>
+                {invitees.length ? invitees.map((invitee) => (
+                  <tr key={invitee.id}>
+                    <td><input type="checkbox" checked={invitee.inviteSent} onChange={() => toggleInviteSent(invitee)} /></td>
+                    <td>{invitee.responded ? "Yes" : "No"}</td>
+                    <td>{invitee.name}</td>
+                    <td>{invitee.phone || "-"}</td>
+                    <td>{invitee.email || "-"}</td>
+                    <td>{invitee.invitedEvents.reception ? "Yes" : "No"}</td>
+                    <td>{invitee.invitedEvents.wedding ? "Yes" : "No"}</td>
+                    <td>{invitee.hostFamily}</td>
+                    <td><button className="admin-link-button" type="button" onClick={() => navigator.clipboard.writeText(inviteUrl(invitee))}>Copy</button></td>
+                  </tr>
+                )) : (
+                  <tr>
+                    <td colSpan="9">No invitees yet.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="admin-table-card">
+          <div className="admin-table-header">
+            <h2>RSVP responses</h2>
             <span>{status === "loading" ? "Loading..." : `${dashboard?.rsvps.length ?? 0} records`}</span>
           </div>
           <div className="admin-table-wrap">
@@ -515,6 +800,7 @@ function AdminPortal() {
                 <tr>
                   <th>Name</th>
                   <th>Phone</th>
+                  <th>Email</th>
                   <th>Guests</th>
                   <th>Reception</th>
                   <th>Wedding</th>
@@ -526,6 +812,7 @@ function AdminPortal() {
                   <tr key={rsvp.id}>
                     <td>{rsvp.name}</td>
                     <td>{rsvp.phone}</td>
+                    <td>{rsvp.email || "-"}</td>
                     <td>{rsvp.guestCount}</td>
                     <td>{rsvp.events.reception ? "Yes" : "No"}</td>
                     <td>{rsvp.events.wedding ? "Yes" : "No"}</td>
@@ -533,7 +820,7 @@ function AdminPortal() {
                   </tr>
                 )) : (
                   <tr>
-                    <td colSpan="6">No RSVPs yet.</td>
+                    <td colSpan="7">No RSVPs yet.</td>
                   </tr>
                 )}
               </tbody>
@@ -586,7 +873,6 @@ function FloatingMenu() {
         {menuItems.map((item) => (
           <a href={item.href} key={item.href} tabIndex={!isCompact || isOpen ? 0 : -1} onClick={() => setIsOpen(false)}>{item.label}</a>
         ))}
-        <span className="top-menu__coming-soon">RSVP soon</span>
       </div>
       <button
         className="top-menu__button"
@@ -605,6 +891,8 @@ function App() {
   const countdown = useCountdown(weddingData.weddingStart);
   const petalCanvasRef = useRef(null);
   const heroImageRef = useRef(null);
+  const [invite, setInvite] = useState(null);
+  const [inviteStatus, setInviteStatus] = useState("idle");
 
   usePetals(petalCanvasRef);
   useRevealOnScroll();
@@ -621,9 +909,62 @@ function App() {
     return () => window.removeEventListener("scroll", updateParallax);
   }, []);
 
+  useEffect(() => {
+    const inviteCode = new URLSearchParams(window.location.search).get("invite");
+
+    if (!inviteCode) {
+      return undefined;
+    }
+
+    let isMounted = true;
+    setInviteStatus("loading");
+
+    fetch(`/api/invite?code=${encodeURIComponent(inviteCode)}`)
+      .then(async (response) => {
+        const payload = await response.json();
+
+        if (!response.ok) {
+          throw new Error(payload.error || "Unable to load invite.");
+        }
+
+        return payload.invite;
+      })
+      .then((loadedInvite) => {
+        if (!isMounted) {
+          return;
+        }
+
+        setInvite(loadedInvite);
+        setInviteStatus("idle");
+      })
+      .catch(() => {
+        if (!isMounted) {
+          return;
+        }
+
+        setInviteStatus("error");
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   if (window.location.pathname === "/admin") {
     return <AdminPortal />;
   }
+
+  const isRithikhaInvite = invite?.hostFamily === "rithikha";
+  const couple = isRithikhaInvite ? [...weddingData.couple].reverse() : weddingData.couple;
+  const families = isRithikhaInvite ? [...weddingData.families].reverse() : weddingData.families;
+  const keyEvents = weddingData.keyEvents.filter((event) => {
+    if (!invite) {
+      return true;
+    }
+
+    return event.id === "reception" ? invite.invitedEvents.reception : invite.invitedEvents.wedding;
+  });
+  const showFullWeddingGuide = !invite || (invite.invitedEvents.reception && invite.invitedEvents.wedding);
 
   return (
     <div className="invite-page">
@@ -645,9 +986,9 @@ function App() {
             {weddingData.heroLabel.map((line) => <span key={line}>{line}</span>)}
           </p>
           <h1>
-            <span>{weddingData.couple[0]}</span>
+            <span>{couple[0]}</span>
             <em>&amp;</em>
-            <span>{weddingData.couple[1]}</span>
+            <span>{couple[1]}</span>
           </h1>
           <p className="hero__tamil">இரு குடும்பங்களின் வாழ்த்துகளுடன்</p>
           <div className="hero__date">
@@ -672,7 +1013,7 @@ function App() {
           <div className="section__narrow" data-reveal>
             <p className="eyebrow">Join us for</p>
             <div className="key-events__list">
-              {weddingData.keyEvents.map((event) => (
+              {keyEvents.map((event) => (
                 <article className="key-event" key={event.title}>
                   <h2>{event.title}</h2>
                   <p>{event.date}</p>
@@ -691,7 +1032,7 @@ function App() {
             <p className="invitation__quote">“{weddingData.invitation.blessing}”</p>
             <p className="invitation__message">{weddingData.invitation.message}</p>
             <div className="family-tags">
-              {weddingData.families.map((family) => <span key={family}>{family}</span>)}
+              {families.map((family) => <span key={family}>{family}</span>)}
             </div>
           </div>
         </section>
@@ -707,11 +1048,12 @@ function App() {
               <p>{weddingData.venue.description}</p>
               <a className="button" href={weddingData.venue.directionsHref}><VenuePin />Get directions</a>
             </div>
-            <RsvpCard />
+            {inviteStatus === "error" && <p className="rsvp-card__message rsvp-card__message--error">This invite link could not be found. Please check the link shared with you.</p>}
+            <RsvpCard invite={invite} />
           </div>
         </section>
 
-        <section className="section itinerary" id="itinerary">
+        {showFullWeddingGuide && <section className="section itinerary" id="itinerary">
           <div className="section__wide">
             <div className="section-heading" data-reveal>
               <p className="eyebrow">The celebration</p>
@@ -738,9 +1080,9 @@ function App() {
               ))}
             </div>
           </div>
-        </section>
+        </section>}
 
-        <section className="section rituals" id="rituals">
+        {showFullWeddingGuide && <section className="section rituals" id="rituals">
           <div className="section__wide">
             <div className="section-heading" data-reveal>
               <p className="eyebrow">For our guests</p>
@@ -758,7 +1100,7 @@ function App() {
               ))}
             </div>
           </div>
-        </section>
+        </section>}
 
         {weddingData.showCoupleSection && (
           <section className="section story" id="story">

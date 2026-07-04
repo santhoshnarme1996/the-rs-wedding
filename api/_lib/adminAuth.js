@@ -3,17 +3,32 @@ import crypto from "node:crypto";
 const TOKEN_TTL_MS = 12 * 60 * 60 * 1000;
 
 const getAdminConfig = () => {
-  const username = process.env.ADMIN_USERNAME;
-  const password = process.env.ADMIN_PASSWORD;
   const secret = process.env.ADMIN_SESSION_SECRET;
+  const accountsJson = process.env.ADMIN_ACCOUNTS_JSON;
 
-  if (!username || !password || !secret) {
+  if (!secret) {
     const error = new Error("Admin credentials are not configured");
     error.code = "ADMIN_CONFIG_MISSING";
     throw error;
   }
 
-  return { username, password, secret };
+  if (accountsJson) {
+    return { accounts: JSON.parse(accountsJson), secret };
+  }
+
+  const username = process.env.ADMIN_USERNAME;
+  const password = process.env.ADMIN_PASSWORD;
+
+  if (!username || !password) {
+    const error = new Error("Admin credentials are not configured");
+    error.code = "ADMIN_CONFIG_MISSING";
+    throw error;
+  }
+
+  return {
+    accounts: [{ username, password, family: "all", role: "superadmin" }],
+    secret,
+  };
 };
 
 const safeEqual = (left, right) => {
@@ -30,10 +45,12 @@ const safeEqual = (left, right) => {
 const sign = (payload, secret) =>
   crypto.createHmac("sha256", secret).update(payload).digest("base64url");
 
-export const createAdminToken = (username) => {
+export const createAdminToken = (account) => {
   const { secret } = getAdminConfig();
   const payload = Buffer.from(JSON.stringify({
-    sub: username,
+    sub: account.username,
+    family: account.family || "all",
+    role: account.role || "family_admin",
     exp: Date.now() + TOKEN_TTL_MS,
   })).toString("base64url");
 
@@ -42,8 +59,17 @@ export const createAdminToken = (username) => {
 
 export const validateAdminCredentials = (username, password) => {
   const config = getAdminConfig();
+  const account = config.accounts.find((candidate) => safeEqual(username, candidate.username));
 
-  return safeEqual(username, config.username) && safeEqual(password, config.password);
+  if (!account || !safeEqual(password, account.password)) {
+    return null;
+  }
+
+  return {
+    username: account.username,
+    family: account.family || "all",
+    role: account.role || "family_admin",
+  };
 };
 
 export const requireAdmin = (request, response) => {

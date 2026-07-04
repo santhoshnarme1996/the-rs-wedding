@@ -729,17 +729,35 @@ h2 {
   text-transform: uppercase;
 }
 
-.rsvp-field input {
+.rsvp-field input,
+.rsvp-field select,
+.rsvp-field textarea {
   width: 100%;
   border: 1px solid rgba(189, 150, 72, 0.24);
   border-radius: 16px;
   padding: 13px 14px;
   background: rgba(255, 255, 255, 0.68);
   color: #46322c;
+  font: inherit;
   outline: none;
 }
 
-.rsvp-field input:focus {
+.rsvp-field select {
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, #8f6258 50%), linear-gradient(135deg, #8f6258 50%, transparent 50%);
+  background-position: calc(100% - 18px) 50%, calc(100% - 12px) 50%;
+  background-repeat: no-repeat;
+  background-size: 6px 6px, 6px 6px;
+}
+
+.rsvp-field textarea {
+  min-height: 130px;
+  resize: vertical;
+}
+
+.rsvp-field input:focus,
+.rsvp-field select:focus,
+.rsvp-field textarea:focus {
   border-color: rgba(207, 111, 129, 0.52);
   box-shadow: 0 0 0 4px rgba(207, 111, 129, 0.12);
 }
@@ -902,6 +920,15 @@ h2 {
   margin-top: 0;
 }
 
+.admin-scope {
+  margin: 12px 0 0;
+  color: #8a5a12 !important;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
 .admin-message {
   margin: 14px 0 0;
   color: #9f2f34;
@@ -911,7 +938,7 @@ h2 {
 
 .admin-stats {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 14px;
   margin-bottom: 18px;
 }
@@ -944,6 +971,11 @@ h2 {
   border-radius: 28px;
 }
 
+.admin-form-card {
+  margin-bottom: 18px;
+  overflow: visible;
+}
+
 .admin-table-header {
   display: flex;
   align-items: center;
@@ -965,7 +997,57 @@ h2 {
 .admin-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 760px;
+  min-width: 980px;
+}
+
+.admin-invitee-form {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  padding: 24px;
+}
+
+.admin-form-wide {
+  grid-column: span 2;
+}
+
+.admin-invitee-form .button {
+  align-self: end;
+  margin-top: 0;
+  min-height: 48px;
+}
+
+.admin-bulk {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 16px;
+  padding: 0 24px 24px;
+}
+
+.admin-bulk .button {
+  margin-top: 0;
+  min-height: 48px;
+  white-space: nowrap;
+}
+
+.admin-link-button {
+  border: 1px solid rgba(122, 31, 31, 0.18);
+  border-radius: 999px;
+  padding: 8px 13px;
+  background: rgba(255, 255, 255, 0.56);
+  color: #7a1f1f;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.admin-table input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #7a1f1f;
 }
 
 .admin-table th,
@@ -1439,6 +1521,29 @@ h2 {
   .admin-table-header {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .admin-invitee-form,
+  .admin-bulk {
+    grid-template-columns: 1fr;
+    padding: 18px;
+  }
+
+  .admin-bulk {
+    padding-top: 0;
+  }
+
+  .admin-form-wide {
+    grid-column: auto;
+  }
+
+  .admin-invitee-form .button,
+  .admin-bulk .button {
+    width: 100%;
+  }
+
+  .admin-table {
+    min-width: 980px;
   }
 
   .closing {
