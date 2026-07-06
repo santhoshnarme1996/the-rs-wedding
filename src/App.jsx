@@ -1089,8 +1089,8 @@ function App() {
       <FloatingMenu />
       <section className="hero" id="top">
         <picture className="hero__picture" aria-hidden="true">
-          <source media="(max-width: 640px)" srcSet="/hero-wedding-couple-mobile.png" />
-          <img ref={heroImageRef} className="hero__temple" src="/hero-wedding-couple-desktop.png" alt="" />
+          <source media="(max-width: 640px)" srcSet="/hero-wedding-floral-v2-mobile.png" />
+          <img ref={heroImageRef} className="hero__temple" src="/hero-wedding-floral-v2-desktop.png" alt="" />
         </picture>
         <div className="hero__wash" />
         <div className="hero__glow" />
