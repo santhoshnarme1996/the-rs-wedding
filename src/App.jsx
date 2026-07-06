@@ -561,7 +561,7 @@ function AdminPortal({ requireSuper = false } = {}) {
     timeStyle: "short",
   }).format(new Date(value)) : "Not available";
 
-  const inviteUrl = (invitee) => `${window.location.origin}/?invite=${invitee.inviteCode}#rsvp`;
+  const inviteUrl = (invitee) => `${window.location.origin}/?invite=${invitee.inviteCode}#venue`;
 
   const accountFamily = account?.family === "all" ? inviteeForm.hostFamily : account?.family || inviteeForm.hostFamily;
 
