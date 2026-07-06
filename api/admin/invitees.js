@@ -176,7 +176,30 @@ export default async function handler(request, response) {
       return response.status(200).json({ invitee: serializeInvitee(row) });
     }
 
-    response.setHeader("Allow", "GET, POST, PATCH");
+    if (request.method === "DELETE") {
+      const body = normalizeBody(request.body);
+      const id = String(body.id || request.query.id || "");
+
+      if (!id) {
+        return response.status(400).json({ error: "Invitee id is required." });
+      }
+
+      const existing = await sql`SELECT host_family FROM invitees WHERE id = ${id} LIMIT 1`;
+
+      if (!existing.length) {
+        return response.status(404).json({ error: "Invitee not found." });
+      }
+
+      if (!canAccessFamily(admin, existing[0].host_family)) {
+        return response.status(403).json({ error: "You cannot delete this invitee." });
+      }
+
+      await sql`DELETE FROM invitees WHERE id = ${id}`;
+
+      return response.status(200).json({ ok: true });
+    }
+
+    response.setHeader("Allow", "GET, POST, PATCH, DELETE");
     return response.status(405).json({ error: "Method not allowed." });
   } catch (error) {
     return handleDatabaseError(error, response);

@@ -327,7 +327,7 @@ function RsvpCard({ invite }) {
       setForm({ ...payload.rsvp, guestCount: String(payload.rsvp.guestCount) });
       setIsEditing(false);
       setStatus("idle");
-      setMessage("Your RSVP has been saved.");
+      setMessage("Thank you! We've received your RSVP and can't wait to celebrate with you.");
     } catch (error) {
       setStatus("error");
       setMessage(error.message || "Unable to save RSVP. Please try again.");
@@ -357,7 +357,7 @@ function RsvpCard({ invite }) {
     return (
       <div className="rsvp-card rsvp-card--saved">
         <p className="rsvp-card__eyebrow">RSVP saved</p>
-        <h3>We have your response</h3>
+        <h3>Thank you for RSVPing!</h3>
         <dl className="rsvp-summary">
           <div><dt>Name</dt><dd>{savedRsvp.name}</dd></div>
           <div><dt>Phone</dt><dd>{savedRsvp.phone}</dd></div>
@@ -561,7 +561,7 @@ function AdminPortal({ requireSuper = false } = {}) {
     timeStyle: "short",
   }).format(new Date(value)) : "Not available";
 
-  const inviteUrl = (invitee) => `${window.location.origin}/?invite=${invitee.inviteCode}`;
+  const inviteUrl = (invitee) => `${window.location.origin}/?invite=${invitee.inviteCode}#rsvp`;
 
   const accountFamily = account?.family === "all" ? inviteeForm.hostFamily : account?.family || inviteeForm.hostFamily;
 
@@ -714,6 +714,61 @@ function AdminPortal({ requireSuper = false } = {}) {
       setMessage(error.message || "Unable to read the Excel file.");
     } finally {
       event.target.value = "";
+    }
+  };
+
+  const deleteInvitee = async (invitee) => {
+    if (!window.confirm(`Delete ${invitee.name}? This also removes their RSVP and cannot be undone.`)) {
+      return;
+    }
+
+    setInvitees((current) => current.filter((item) => item.id !== invitee.id));
+
+    try {
+      const response = await authedFetch("/api/admin/invitees", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: invitee.id }),
+      });
+
+      if (!response.ok) {
+        const payload = await response.json();
+        throw new Error(payload.error || "Unable to delete invitee.");
+      }
+
+      await loadDashboard();
+    } catch (error) {
+      setMessage(error.message || "Unable to delete invitee.");
+      await loadDashboard();
+    }
+  };
+
+  const deleteRsvp = async (rsvp) => {
+    if (!window.confirm(`Delete the RSVP from ${rsvp.name}? This cannot be undone.`)) {
+      return;
+    }
+
+    setDashboard((current) => current && {
+      ...current,
+      rsvps: current.rsvps.filter((item) => item.id !== rsvp.id),
+    });
+
+    try {
+      const response = await authedFetch("/api/admin/rsvps", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: rsvp.id }),
+      });
+
+      if (!response.ok) {
+        const payload = await response.json();
+        throw new Error(payload.error || "Unable to delete RSVP.");
+      }
+
+      await loadDashboard();
+    } catch (error) {
+      setMessage(error.message || "Unable to delete RSVP.");
+      await loadDashboard();
     }
   };
 
@@ -878,6 +933,7 @@ function AdminPortal({ requireSuper = false } = {}) {
                   <th>Wedding</th>
                   <th>Family</th>
                   <th>Invite link</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
@@ -892,10 +948,11 @@ function AdminPortal({ requireSuper = false } = {}) {
                     <td>{invitee.invitedEvents.wedding ? "Yes" : "No"}</td>
                     <td>{invitee.hostFamily}</td>
                     <td><button className="admin-link-button" type="button" onClick={() => navigator.clipboard.writeText(inviteUrl(invitee))}>Copy</button></td>
+                    <td><button className="admin-link-button admin-link-button--danger" type="button" onClick={() => deleteInvitee(invitee)}>Delete</button></td>
                   </tr>
                 )) : (
                   <tr>
-                    <td colSpan="9">No invitees yet.</td>
+                    <td colSpan="10">No invitees yet.</td>
                   </tr>
                 )}
               </tbody>
@@ -919,6 +976,7 @@ function AdminPortal({ requireSuper = false } = {}) {
                   <th>Reception</th>
                   <th>Wedding</th>
                   <th>Updated</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
@@ -931,10 +989,11 @@ function AdminPortal({ requireSuper = false } = {}) {
                     <td>{rsvp.events.reception ? "Yes" : "No"}</td>
                     <td>{rsvp.events.wedding ? "Yes" : "No"}</td>
                     <td>{formatDate(rsvp.updatedAt)}</td>
+                    <td><button className="admin-link-button admin-link-button--danger" type="button" onClick={() => deleteRsvp(rsvp)}>Delete</button></td>
                   </tr>
                 )) : (
                   <tr>
-                    <td colSpan="7">No RSVPs yet.</td>
+                    <td colSpan="8">No RSVPs yet.</td>
                   </tr>
                 )}
               </tbody>
@@ -1089,8 +1148,7 @@ function App() {
       <FloatingMenu />
       <section className="hero" id="top">
         <picture className="hero__picture" aria-hidden="true">
-          <source media="(max-width: 640px)" srcSet="/hero-wedding-mandap-v3-mobile.png" />
-          <img ref={heroImageRef} className="hero__temple" src="/hero-wedding-mandap-v3-desktop.png" alt="" />
+          <img ref={heroImageRef} className="hero__temple" src="/hero-wedding-floral-v4.png" alt="" />
         </picture>
         <div className="hero__wash" />
         <div className="hero__glow" />
@@ -1167,7 +1225,9 @@ function App() {
               <a className="button" href={weddingData.venue.directionsHref}><VenuePin />Get directions</a>
             </div>
             {inviteStatus === "error" && <p className="rsvp-card__message rsvp-card__message--error">This invite link could not be found. Please check the link shared with you.</p>}
-            <RsvpCard invite={invite} />
+            <div id="rsvp">
+              <RsvpCard invite={invite} />
+            </div>
           </div>
         </section>
 

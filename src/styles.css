@@ -1131,6 +1131,12 @@ h2 {
   text-transform: uppercase;
 }
 
+.admin-link-button--danger {
+  border-color: rgba(178, 34, 34, 0.35);
+  background: rgba(178, 34, 34, 0.08);
+  color: #b22222;
+}
+
 .admin-table input[type="checkbox"] {
   width: 18px;
   height: 18px;
@@ -1454,7 +1460,7 @@ h2 {
 
   .hero__temple {
     transform: translateY(var(--hero-parallax, 0px)) scale(1.03);
-    object-position: 57% center;
+    object-position: center center;
   }
 
   .hero__wash {

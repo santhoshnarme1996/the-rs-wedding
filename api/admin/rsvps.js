@@ -3,13 +3,16 @@ import { ensureSchema, getSql, handleDatabaseError, serializeRsvp } from "../_li
 
 const scopedWhere = (admin) => admin.family === "all" ? null : admin.family;
 
+const normalizeBody = (body) => {
+  if (typeof body === "string") {
+    return JSON.parse(body);
+  }
+
+  return body || {};
+};
+
 export default async function handler(request, response) {
   try {
-    if (request.method !== "GET") {
-      response.setHeader("Allow", "GET");
-      return response.status(405).json({ error: "Method not allowed." });
-    }
-
     const admin = requireAdmin(request, response);
 
     if (!admin) {
@@ -18,6 +21,41 @@ export default async function handler(request, response) {
 
     const sql = getSql();
     await ensureSchema(sql);
+
+    if (request.method === "DELETE") {
+      const body = normalizeBody(request.body);
+      const id = String(body.id || request.query.id || "");
+
+      if (!id) {
+        return response.status(400).json({ error: "RSVP id is required." });
+      }
+
+      const existing = await sql`
+        SELECT i.host_family
+        FROM rsvps r
+        JOIN invitees i ON i.id = r.invitee_id
+        WHERE r.id = ${id}
+        LIMIT 1
+      `;
+
+      if (!existing.length) {
+        return response.status(404).json({ error: "RSVP not found." });
+      }
+
+      if (admin.family !== "all" && admin.family !== existing[0].host_family) {
+        return response.status(403).json({ error: "You cannot delete this RSVP." });
+      }
+
+      await sql`DELETE FROM rsvps WHERE id = ${id}`;
+
+      return response.status(200).json({ ok: true });
+    }
+
+    if (request.method !== "GET") {
+      response.setHeader("Allow", "GET, DELETE");
+      return response.status(405).json({ error: "Method not allowed." });
+    }
+
     const family = scopedWhere(admin);
 
     const [summary] = family
