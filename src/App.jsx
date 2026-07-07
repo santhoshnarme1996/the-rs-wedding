@@ -563,24 +563,14 @@ function AdminPortal({ requireSuper = false } = {}) {
 
   const inviteUrl = (invitee) => `${window.location.origin}/?invite=${invitee.inviteCode}#rsvp`;
 
-  const inviteEventLabel = (invitee) => {
-    if (invitee.invitedEvents.reception && invitee.invitedEvents.wedding) {
-      return "Reception and Wedding";
-    }
-
-    return invitee.invitedEvents.reception ? "Reception" : "Wedding";
-  };
-
   const inviteMessage = (invitee) => [
-    `Namaste ${invitee.name},`,
+    `Dear ${invitee.name},`,
     "",
-    "With love, we invite you to celebrate Santhosh & Rithikha's wedding.",
-    `You are warmly invited for: ${inviteEventLabel(invitee)}.`,
+    "With full hearts, our families invite you to be part of Santhosh and Rithikha's wedding celebrations.",
+    "Your presence and blessings would mean so much to us as we begin this new chapter together.",
     "",
-    "Please view your invitation and RSVP here:",
+    "Please view your invitation and share your RSVP here:",
     inviteUrl(invitee),
-    "",
-    "- Santhosh & Rithikha",
   ].join("\n");
 
   const whatsappPhone = (phone) => String(phone || "").replace(/[^0-9]/g, "");
