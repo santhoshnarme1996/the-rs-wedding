@@ -561,7 +561,44 @@ function AdminPortal({ requireSuper = false } = {}) {
     timeStyle: "short",
   }).format(new Date(value)) : "Not available";
 
-  const inviteUrl = (invitee) => `${window.location.origin}/?invite=${invitee.inviteCode}#venue`;
+  const inviteUrl = (invitee) => `${window.location.origin}/?invite=${invitee.inviteCode}#rsvp`;
+
+  const inviteEventLabel = (invitee) => {
+    if (invitee.invitedEvents.reception && invitee.invitedEvents.wedding) {
+      return "Reception and Wedding";
+    }
+
+    return invitee.invitedEvents.reception ? "Reception" : "Wedding";
+  };
+
+  const inviteMessage = (invitee) => [
+    `Namaste ${invitee.name},`,
+    "",
+    "With love, we invite you to celebrate Santhosh & Rithikha's wedding.",
+    `You are warmly invited for: ${inviteEventLabel(invitee)}.`,
+    "",
+    "Please view your invitation and RSVP here:",
+    inviteUrl(invitee),
+    "",
+    "- Santhosh & Rithikha",
+  ].join("\n");
+
+  const whatsappPhone = (phone) => String(phone || "").replace(/[^0-9]/g, "");
+
+  const whatsappUrl = (invitee) => {
+    const phone = whatsappPhone(invitee.phone);
+
+    if (!phone) {
+      return "";
+    }
+
+    return `https://wa.me/${phone}?text=${encodeURIComponent(inviteMessage(invitee))}`;
+  };
+
+  const copyToClipboard = async (text, successMessage) => {
+    await navigator.clipboard.writeText(text);
+    setMessage(successMessage);
+  };
 
   const accountFamily = account?.family === "all" ? inviteeForm.hostFamily : account?.family || inviteeForm.hostFamily;
 
@@ -796,6 +833,21 @@ function AdminPortal({ requireSuper = false } = {}) {
     }
   };
 
+  const openWhatsAppInvite = async (invitee) => {
+    const url = whatsappUrl(invitee);
+
+    if (!url) {
+      setMessage("Add a phone number with country code before opening WhatsApp.");
+      return;
+    }
+
+    window.open(url, "_blank", "noopener,noreferrer");
+
+    if (!invitee.inviteSent) {
+      await toggleInviteSent(invitee);
+    }
+  };
+
   if (!token || !hasRequiredScope) {
     return (
       <main className="admin-page">
@@ -932,7 +984,7 @@ function AdminPortal({ requireSuper = false } = {}) {
                   <th>Reception</th>
                   <th>Wedding</th>
                   <th>Family</th>
-                  <th>Invite link</th>
+                  <th>Send invite</th>
                   <th></th>
                 </tr>
               </thead>
@@ -947,7 +999,13 @@ function AdminPortal({ requireSuper = false } = {}) {
                     <td>{invitee.invitedEvents.reception ? "Yes" : "No"}</td>
                     <td>{invitee.invitedEvents.wedding ? "Yes" : "No"}</td>
                     <td>{invitee.hostFamily}</td>
-                    <td><button className="admin-link-button" type="button" onClick={() => navigator.clipboard.writeText(inviteUrl(invitee))}>Copy</button></td>
+                    <td>
+                      <div className="admin-send-actions">
+                        <button className="admin-link-button" type="button" onClick={() => copyToClipboard(inviteUrl(invitee), `Copied invite link for ${invitee.name}.`)}>Copy link</button>
+                        <button className="admin-link-button" type="button" onClick={() => copyToClipboard(inviteMessage(invitee), `Copied WhatsApp message for ${invitee.name}.`)}>Copy message</button>
+                        <button className="admin-link-button admin-link-button--whatsapp" type="button" disabled={!whatsappPhone(invitee.phone)} onClick={() => openWhatsAppInvite(invitee)}>WhatsApp</button>
+                      </div>
+                    </td>
                     <td><button className="admin-link-button admin-link-button--danger" type="button" onClick={() => deleteInvitee(invitee)}>Delete</button></td>
                   </tr>
                 )) : (

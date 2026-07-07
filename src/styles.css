@@ -1042,7 +1042,7 @@ h2 {
 .admin-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 980px;
+  min-width: 1120px;
 }
 
 .admin-invitee-form {
@@ -1129,6 +1129,30 @@ h2 {
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.admin-send-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  min-width: 300px;
+}
+
+.admin-send-actions .admin-link-button {
+  padding-inline: 11px;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.admin-link-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+}
+
+.admin-link-button--whatsapp {
+  border-color: rgba(37, 211, 102, 0.42);
+  background: rgba(37, 211, 102, 0.12);
+  color: #16713a;
 }
 
 .admin-link-button--danger {
@@ -1645,7 +1669,7 @@ h2 {
   }
 
   .admin-table {
-    min-width: 980px;
+    min-width: 1120px;
   }
 
   .closing {
