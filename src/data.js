@@ -61,19 +61,19 @@ export const weddingData = {
           time: "8:00 AM",
           title: "Vratham & Naandhi",
           description:
-            "A sacred beginning with family blessings, ancestral prayers, and traditional pre-wedding vows.",
+            "A sacred beginning with family blessings, ancestral prayers, and traditional pre-wedding vows. During Vratham, the families seek divine grace and wear the protective kappu thread; through Naandhi, ancestors and married elders are honoured and invited to bless the wedding.",
         },
         {
           time: "10:30 - 11:30 AM",
           title: "Nitchayadartham",
           description:
-            "The formal engagement ceremony where both families bless and celebrate the promise of marriage.",
+            "The formal engagement ceremony where both families bless and celebrate the promise of marriage, affirming the wedding with shared joy, blessings, and tradition.",
         },
         {
           time: "7:00 - 9:00 PM",
           title: "Reception",
           description:
-            "An evening of greetings, warmth, and celebration with family and friends.",
+            "An evening of greetings, warmth, and celebration where family and friends gather to shower the couple with blessings.",
         },
       ],
     },
@@ -86,58 +86,20 @@ export const weddingData = {
           time: "7:00 AM",
           title: "Kasi Yathrai & Oonjal",
           description:
-            "Playful and heartfelt rituals before the Muhurtham, filled with blessings, songs, and family joy.",
+            "Playful and heartfelt rituals before the Muhurtham: the groom is lovingly brought back from his symbolic Kasi journey, and the couple is blessed on the oonjal with songs, prayers, and family joy.",
         },
         {
           time: "9:00 - 10:30 AM",
           title: "Muhurtham",
           description:
-            "The auspicious Thula Lagnam wedding ceremony, with the tying of the maangalyam as we begin our new chapter together.",
+            "The most auspicious moment of the wedding, held during Thula Lagnam, with the tying of the maangalyam as we begin our new chapter together.",
+          details: [
+            "Kanyadaanam - the giving of the bride",
+            "Maangalya Dhaaranam - tying the sacred thali",
+            "Saptapadi - seven steps around the fire",
+          ],
         },
       ],
-    },
-  ],
-  rituals: [
-    {
-      tamil: "விரதம்",
-      title: "Vratham",
-      description:
-        "Wearing the sacred kappu thread, the families take a vow to complete the wedding without obstacles, seeking the blessings of the gods and elders.",
-    },
-    {
-      tamil: "நாந்தி",
-      title: "Naandhi",
-      description:
-        "Ancestors and married elders are honoured and invited to bless the union, ensuring the ceremony is conducted with their grace and goodwill.",
-    },
-    {
-      tamil: "நிச்சயதார்த்தம்",
-      title: "Nitchayadartham",
-      description:
-        "The engagement ceremony where the families formally affirm the wedding, exchange blessings, and begin the celebrations together.",
-    },
-    {
-      tamil: "காசி யாத்திரை & ஊஞ்சல்",
-      title: "Kasi Yathrai & Oonjal",
-      description:
-        "A beloved sequence of rituals: the groom is playfully brought back from his symbolic journey, and the couple is blessed on the swing with songs and family prayers.",
-    },
-    {
-      tamil: "முகூர்த்தம்",
-      title: "Muhurtham",
-      description: "The wedding's most auspicious moment, woven from many sacred rites:",
-      details: [
-        "Kanyadaanam - the giving of the bride",
-        "Maangalya Dhaaranam - tying the sacred thali",
-        "Saptapadi - seven steps around the fire",
-      ],
-      featured: true,
-    },
-    {
-      tamil: "வரவேற்பு",
-      title: "Reception",
-      description:
-        "A joyful social celebration where the newlyweds are introduced to the wider circle of family and friends, who shower them with blessings.",
     },
   ],
   people: [

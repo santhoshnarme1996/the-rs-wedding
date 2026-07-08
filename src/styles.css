@@ -491,8 +491,7 @@ a {
   letter-spacing: 0.06em;
 }
 
-.venue,
-.rituals {
+.venue {
   background: #f3eef7;
 }
 
@@ -567,7 +566,6 @@ h2 {
 .section-heading > p,
 .venue-card > p,
 .timeline-event > p,
-.ritual-card > p,
 .person-card__body > p,
 .closing p {
   color: #6f5a52;
@@ -1283,43 +1281,7 @@ h2 {
   line-height: 1.7;
 }
 
-.ritual-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
-}
-
-.ritual-card {
-  padding: 24px;
-  border: 1px solid rgba(189, 150, 72, 0.2);
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.74);
-}
-
-.ritual-card--featured {
-  border-color: rgba(207, 111, 129, 0.26);
-  background: linear-gradient(180deg, rgba(207, 111, 129, 0.1), rgba(255, 255, 255, 0.74));
-}
-
-.ritual-card__tamil {
-  margin-bottom: 8px;
-  color: #bd9648 !important;
-  font-family: "Tiro Tamil", serif;
-  font-size: 15px !important;
-}
-
-.ritual-card h3 {
-  margin-bottom: 8px;
-  font-size: 23px;
-}
-
-.ritual-card > p {
-  margin-bottom: 0;
-  font-size: 14px;
-  line-height: 1.75;
-}
-
-.ritual-card ul {
+.timeline-event__details {
   display: grid;
   gap: 5px;
   margin: 12px 0 0;
@@ -1676,7 +1638,6 @@ h2 {
     padding-bottom: 82px;
   }
 
-  .ritual-grid,
   .people-grid {
     grid-template-columns: 1fr;
   }

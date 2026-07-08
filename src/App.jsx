@@ -189,7 +189,7 @@ const menuItems = [
   { href: "#top", label: "Home" },
   { href: "#events", label: "Events" },
   { href: "#venue", label: "Venue & RSVP" },
-  { href: "#rituals", label: "Rituals" },
+  { href: "#itinerary", label: "Itinerary" },
 ];
 
 const emptyRsvp = {
@@ -1305,29 +1305,10 @@ function App() {
                         <p className="timeline-event__time">{event.time}</p>
                         <h4>{event.title}</h4>
                         <p>{event.description}</p>
+                        {event.details && <ul className="timeline-event__details">{event.details.map((detail) => <li key={detail}>{detail}</li>)}</ul>}
                       </div>
                     ))}
                   </div>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>}
-
-        {showFullWeddingGuide && <section className="section rituals" id="rituals">
-          <div className="section__wide">
-            <div className="section-heading" data-reveal>
-              <p className="eyebrow">For our guests</p>
-              <h2>The meaning behind the rituals</h2>
-              <p>A traditional Tamil Brahmin wedding unfolds through a series of sacred ceremonies. Here is a gentle guide to what you will witness.</p>
-            </div>
-            <div className="ritual-grid">
-              {weddingData.rituals.map((ritual) => (
-                <article className={`ritual-card${ritual.featured ? " ritual-card--featured" : ""}`} data-reveal key={ritual.title}>
-                  <p className="ritual-card__tamil">{ritual.tamil}</p>
-                  <h3>{ritual.title}</h3>
-                  <p>{ritual.description}</p>
-                  {ritual.details && <ul>{ritual.details.map((detail) => <li key={detail}>{detail}</li>)}</ul>}
                 </article>
               ))}
             </div>
