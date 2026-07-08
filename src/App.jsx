@@ -318,7 +318,7 @@ function RsvpCard({ invite }) {
     setForm((current) => ({
       ...current,
       isAttending,
-      guestCount: isAttending ? current.guestCount || "1" : "0",
+      guestCount: isAttending ? String(Math.max(1, Number.parseInt(current.guestCount, 10) || 1)) : "0",
       events: {
         reception: Boolean(isAttending && invite?.invitedEvents.reception),
         wedding: Boolean(isAttending && invite?.invitedEvents.wedding),
@@ -421,13 +421,13 @@ function RsvpCard({ invite }) {
         <input value={form.name} onChange={(event) => updateField("name", event.target.value)} required />
       </label>
 
-      <fieldset className="rsvp-events">
-        <legend>Are you joining?</legend>
-        <label className="rsvp-event">
+      <fieldset className="rsvp-events rsvp-attendance">
+        <legend>Your response</legend>
+        <label className="rsvp-event rsvp-attendance__option">
           <input type="radio" name="isAttending" checked={form.isAttending} onChange={() => updateAttendance(true)} />
           <span><strong>Yes, I will be there</strong></span>
         </label>
-        <label className="rsvp-event">
+        <label className="rsvp-event rsvp-attendance__option">
           <input type="radio" name="isAttending" checked={!form.isAttending} onChange={() => updateAttendance(false)} />
           <span><strong>Sorry, I cannot make it</strong></span>
         </label>
@@ -443,7 +443,7 @@ function RsvpCard({ invite }) {
             onClick={() => updateGuestCount(-1)}
             type="button"
           >
-            -
+            <span className="guest-stepper__icon" aria-hidden="true">&minus;</span>
           </button>
           <input
             aria-labelledby="guest-count-label"
@@ -464,7 +464,7 @@ function RsvpCard({ invite }) {
             onClick={() => updateGuestCount(1)}
             type="button"
           >
-            +
+            <span className="guest-stepper__icon" aria-hidden="true">+</span>
           </button>
         </div>
       </div>}

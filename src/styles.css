@@ -842,6 +842,14 @@ h2 {
   opacity: 0.32;
 }
 
+.guest-stepper__icon {
+  display: inline-grid;
+  width: 1em;
+  font-family: Georgia, serif;
+  line-height: 1;
+  place-items: center;
+}
+
 .rsvp-events {
   display: grid;
   gap: 10px;
@@ -855,6 +863,17 @@ h2 {
   padding: 0;
 }
 
+.rsvp-attendance {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 22px;
+  row-gap: 8px;
+  margin-top: 4px;
+}
+
+.rsvp-attendance legend {
+  grid-column: 1 / -1;
+}
+
 .rsvp-event {
   display: flex;
   align-items: center;
@@ -863,6 +882,14 @@ h2 {
   border: 1px solid rgba(189, 150, 72, 0.22);
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.48);
+}
+
+.rsvp-attendance__option {
+  justify-content: center;
+  padding: 6px 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
 }
 
 .rsvp-event input {
