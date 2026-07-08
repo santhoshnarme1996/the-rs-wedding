@@ -410,11 +410,16 @@ a {
 }
 
 .section {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
   padding: 84px 22px;
 }
 
 .section__narrow,
 .section__wide {
+  position: relative;
+  z-index: 1;
   width: min(100%, 600px);
   margin: 0 auto;
 }
@@ -449,6 +454,17 @@ a {
   left: 0;
   height: 92px;
   background: linear-gradient(180deg, rgba(251, 244, 239, 0), #fbf4ef 88%);
+  pointer-events: none;
+}
+
+.key-events::after {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: url("/hero-wedding-floral-v4.png") center bottom / min(1180px, 120vw) auto no-repeat;
+  content: "";
+  mask-image: linear-gradient(180deg, transparent 0%, #000 18%, #000 72%, transparent 100%);
+  opacity: 0.1;
   pointer-events: none;
 }
 
@@ -503,7 +519,47 @@ a {
 }
 
 .venue {
-  background: #f3eef7;
+  position: relative;
+  background:
+    radial-gradient(circle at 22% 18%, rgba(207, 111, 129, 0.12), transparent 30%),
+    linear-gradient(180deg, #f8f1f5 0%, #f3eef7 55%, #fbf4ef 100%);
+}
+
+.invitation::before,
+.venue::before,
+.itinerary::before,
+.story::before {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  content: "";
+  pointer-events: none;
+}
+
+.invitation::before {
+  background: url("/hero-tanjai-floral-hd.png") center center / cover no-repeat;
+  mask-image: radial-gradient(ellipse at center, #000 0%, rgba(0, 0, 0, 0.64) 34%, transparent 74%);
+  opacity: 0.07;
+}
+
+.venue::before {
+  background: url("/hero-wedding-mandap-v3-desktop.png") center bottom / cover no-repeat;
+  mask-image: linear-gradient(180deg, transparent 0%, #000 22%, #000 70%, transparent 100%);
+  opacity: 0.075;
+}
+
+.itinerary::before {
+  background:
+    url("/hero-wedding-floral-v4.png") left center / min(1180px, 118vw) auto no-repeat,
+    url("/hero-wedding-mandap-v3-desktop.png") right bottom / min(980px, 96vw) auto no-repeat;
+  mask-image: radial-gradient(ellipse at center, #000 0%, rgba(0, 0, 0, 0.72) 48%, transparent 82%);
+  opacity: 0.085;
+}
+
+.story::before {
+  background: url("/hero-wedding-floral-v2-desktop.png") center center / cover no-repeat;
+  mask-image: radial-gradient(ellipse at center, #000 0%, rgba(0, 0, 0, 0.58) 38%, transparent 78%);
+  opacity: 0.06;
 }
 
 .ornament-divider {
@@ -883,10 +939,6 @@ h2 {
   border: 0;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.24);
-}
-
-.rsvp-attendance__option:has(input:checked) {
-  background: rgba(122, 31, 31, 0.08);
 }
 
 .rsvp-event input {
