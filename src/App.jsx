@@ -421,13 +421,13 @@ function RsvpCard({ invite }) {
         <input value={form.name} onChange={(event) => updateField("name", event.target.value)} required />
       </label>
 
-      <fieldset className="rsvp-events">
-        <legend>Are you joining?</legend>
-        <label className="rsvp-event">
+      <fieldset className="rsvp-events rsvp-attendance">
+        <legend>Your response</legend>
+        <label className="rsvp-event rsvp-attendance__option">
           <input type="radio" name="isAttending" checked={form.isAttending} onChange={() => updateAttendance(true)} />
           <span><strong>Yes, I will be there</strong></span>
         </label>
-        <label className="rsvp-event">
+        <label className="rsvp-event rsvp-attendance__option">
           <input type="radio" name="isAttending" checked={!form.isAttending} onChange={() => updateAttendance(false)} />
           <span><strong>Sorry, I cannot make it</strong></span>
         </label>

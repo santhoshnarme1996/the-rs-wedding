@@ -855,6 +855,17 @@ h2 {
   padding: 0;
 }
 
+.rsvp-attendance {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.rsvp-attendance legend {
+  grid-column: 1 / -1;
+  margin-bottom: -2px;
+}
+
 .rsvp-event {
   display: flex;
   align-items: center;
@@ -863,6 +874,19 @@ h2 {
   border: 1px solid rgba(189, 150, 72, 0.22);
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.48);
+}
+
+.rsvp-attendance__option {
+  justify-content: center;
+  min-height: 48px;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.24);
+}
+
+.rsvp-attendance__option:has(input:checked) {
+  background: rgba(122, 31, 31, 0.08);
 }
 
 .rsvp-event input {
@@ -879,6 +903,10 @@ h2 {
 .rsvp-event strong {
   color: #5b1f1f;
   font-size: 14px;
+}
+
+.rsvp-attendance__option strong {
+  font-size: 13px;
 }
 
 .rsvp-event small {
@@ -1532,6 +1560,15 @@ h2 {
   .top-menu__button {
     height: 50px;
     min-width: 76px;
+  }
+
+  .rsvp-attendance {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .rsvp-attendance__option {
+    justify-content: flex-start;
   }
 
   .hero {
