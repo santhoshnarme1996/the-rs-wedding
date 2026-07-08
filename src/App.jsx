@@ -1305,7 +1305,6 @@ function App() {
                         <p className="timeline-event__time">{event.time}</p>
                         <h4>{event.title}</h4>
                         <p>{event.description}</p>
-                        {event.details && <ul className="timeline-event__details">{event.details.map((detail) => <li key={detail}>{detail}</li>)}</ul>}
                       </div>
                     ))}
                   </div>

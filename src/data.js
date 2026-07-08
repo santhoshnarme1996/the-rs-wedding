@@ -92,12 +92,7 @@ export const weddingData = {
           time: "9:00 - 10:30 AM",
           title: "Muhurtham",
           description:
-            "The most auspicious moment of the wedding, held during Thula Lagnam, with the tying of the maangalyam as we begin our new chapter together.",
-          details: [
-            "Kanyadaanam - the giving of the bride",
-            "Maangalya Dhaaranam - tying the sacred thali",
-            "Saptapadi - seven steps around the fire",
-          ],
+            "The most auspicious moment of the wedding, held during Thula Lagnam, bringing together Kanyadaanam, Maangalya Dhaaranam, and Saptapadi as we begin our new chapter together.",
         },
       ],
     },
