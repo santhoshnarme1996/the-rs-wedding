@@ -318,9 +318,7 @@ function RsvpCard({ invite }) {
     setForm((current) => ({
       ...current,
       isAttending,
-      guestCount: isAttending
-        ? (Number.parseInt(current.guestCount, 10) > 0 ? current.guestCount : "1")
-        : current.guestCount,
+      guestCount: isAttending ? current.guestCount || "1" : "0",
       events: {
         reception: Boolean(isAttending && invite?.invitedEvents.reception),
         wedding: Boolean(isAttending && invite?.invitedEvents.wedding),
