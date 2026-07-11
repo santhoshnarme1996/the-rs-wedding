@@ -413,8 +413,8 @@ function RsvpCard({ invite }) {
   return (
     <form className="rsvp-card" onSubmit={saveRsvp}>
       <p className="rsvp-card__eyebrow">RSVP</p>
-      <h3>Are you joining?</h3>
-      <p className="rsvp-card__intro">Please let us know if you will be able to celebrate with us.</p>
+      <h3>We&apos;d love to celebrate with you.</h3>
+      <p className="rsvp-card__intro">Kindly let us know if you&apos;ll be able to attend.</p>
 
       <label className="rsvp-field">
         <span>Name</span>
@@ -422,19 +422,19 @@ function RsvpCard({ invite }) {
       </label>
 
       <fieldset className="rsvp-events rsvp-attendance">
-        <legend>Your response</legend>
+        <legend>Will you be joining us?</legend>
         <label className="rsvp-event rsvp-attendance__option">
           <input type="radio" name="isAttending" checked={form.isAttending} onChange={() => updateAttendance(true)} />
           <span><strong>Yes, I will be there</strong></span>
         </label>
         <label className="rsvp-event rsvp-attendance__option">
           <input type="radio" name="isAttending" checked={!form.isAttending} onChange={() => updateAttendance(false)} />
-          <span><strong>Sorry, I cannot make it</strong></span>
+          <span><strong>Sorry, I won&apos;t be able to make it</strong></span>
         </label>
       </fieldset>
 
       {form.isAttending && <div className="rsvp-field">
-        <span id="guest-count-label">Number of guests</span>
+        <span id="guest-count-label">Guests attending</span>
         <div className="guest-stepper">
           <button
             aria-label="Decrease guest count"
@@ -483,7 +483,7 @@ function RsvpCard({ invite }) {
       </fieldset>}
 
       <button className="button" type="submit" disabled={status === "saving"}>
-        {status === "saving" ? "Saving..." : "Submit RSVP"}
+        {status === "saving" ? "Saving..." : "Confirm RSVP"}
       </button>
       {message && <p className={`rsvp-card__message${status === "error" ? " rsvp-card__message--error" : ""}`}>{message}</p>}
     </form>
