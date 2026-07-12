@@ -1396,8 +1396,8 @@ function App() {
             <p className="invitation__transliteration">{weddingData.invitation.transliteration}</p>
             <p className="invitation__quote">"{weddingData.invitation.blessing}"</p>
             */}
-            <p className="invitation__message">{weddingData.invitation.message}</p>
             <InvitationStack />
+            <p className="invitation__message">{weddingData.invitation.message}</p>
             {keyEvents.length > 0 && (
               <div className="event-tiles">
                 <div className={`event-tiles__grid${keyEvents.length === 1 ? " event-tiles__grid--single" : ""}`}>

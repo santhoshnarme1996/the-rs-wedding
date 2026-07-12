@@ -43,7 +43,7 @@ export const weddingData = {
     blessing:
       "United be your intention, united be your hearts, united be your minds - that you may be firmly bound together. A blessing from the Rig Veda for two lives becoming one.",
     message:
-      "As our families gather and our story turns toward a new chapter, your presence and blessings would mean the world to us. We would be honoured to celebrate these sacred moments with you.",
+      "As our families begin a beautiful new chapter, your presence and blessings would mean the world to us. We would be honoured to celebrate these special moments with you.",
   },
   venue: {
     name: "Shree Geetha Bhavan",

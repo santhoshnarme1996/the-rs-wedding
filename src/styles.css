@@ -598,7 +598,7 @@ h2 {
 
 .invitation__message {
   max-width: 540px;
-  margin: 0 auto;
+  margin: 36px auto 0;
   color: #5a443d;
   font-family: "Cormorant Garamond", serif;
   font-size: clamp(19px, 2.6vw, 24px);
