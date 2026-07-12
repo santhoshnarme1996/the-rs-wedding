@@ -20,7 +20,7 @@ export const weddingData = {
       id: "wedding",
       title: "Wedding",
       date: "Sunday, September 13th",
-      time: "Muhurtham · 9:00 - 10:30 AM",
+      time: "9:00 - 10:30 AM",
     },
   ],
   rsvpEvents: [
