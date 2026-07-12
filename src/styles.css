@@ -1112,7 +1112,7 @@ h2 {
 }
 
 .rsvp-attendance__option {
-  justify-content: center;
+  justify-content: flex-start;
   padding: 6px 0;
   border: 0;
   border-radius: 0;
