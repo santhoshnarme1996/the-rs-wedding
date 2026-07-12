@@ -185,11 +185,8 @@ function VenuePin() {
 
 const couplePhotos = ["/RS-Couple-2.jpeg", "/RS-Couple-1.jpeg", "/RS-Couple-3.jpeg", "/RS-Couple-4.jpeg"];
 
-function InvitationStack({ events }) {
-  const cards = [
-    ...couplePhotos.map((photo) => ({ type: "photo", key: photo, src: photo })),
-    ...events.map((event) => ({ type: "event", key: event.id, event })),
-  ];
+function InvitationStack() {
+  const cards = couplePhotos.map((photo) => ({ type: "photo", key: photo, src: photo }));
   const [index, setIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
@@ -225,15 +222,7 @@ function InvitationStack({ events }) {
 
           return (
             <figure className={`couple-gallery__card couple-gallery__card--${position}`} key={card.key}>
-              {card.type === "photo" ? (
-                <img src={card.src} alt="Santhosh and Rithikha" loading="lazy" />
-              ) : (
-                <div className={`couple-gallery__event couple-gallery__event--${card.event.id}`}>
-                  <h3>{card.event.title}</h3>
-                  <p>{card.event.date}</p>
-                  <span>{card.event.time}</span>
-                </div>
-              )}
+              <img src={card.src} alt="Santhosh and Rithikha" loading="lazy" />
             </figure>
           );
         })}
@@ -1408,7 +1397,22 @@ function App() {
             <p className="invitation__quote">"{weddingData.invitation.blessing}"</p>
             */}
             <p className="invitation__message">{weddingData.invitation.message}</p>
-            <InvitationStack events={keyEvents} />
+            <InvitationStack />
+            {keyEvents.length > 0 && (
+              <div className="event-tiles">
+                <div className={`event-tiles__grid${keyEvents.length === 1 ? " event-tiles__grid--single" : ""}`}>
+                  {keyEvents.map((event) => (
+                    <div className="event-tile" key={event.id}>
+                      <div className={`couple-gallery__event couple-gallery__event--${event.id}`}>
+                        <h3>{event.title}</h3>
+                        <p>{event.date}</p>
+                        <span>{event.time}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </section>
 
@@ -1508,7 +1512,6 @@ function App() {
             <p className="eyebrow">With love & gratitude</p>
             <h2>We look forward to<br />celebrating with you</h2>
             <p>Your presence is the greatest blessing of all. We can’t wait to share these precious days, and a lifetime of joy, with the people we hold dearest.</p>
-            <p className="closing__names">Santhosh & Rithikha</p>
             <p className="closing__tamil">நன்றி · வாழ்க வளமுடன்</p>
           </div>
         </section>
