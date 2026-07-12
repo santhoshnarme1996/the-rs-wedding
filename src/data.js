@@ -61,38 +61,38 @@ export const weddingData = {
           time: "8:00 AM",
           title: "Vratham & Naandhi",
           description:
-            "A sacred beginning with family blessings, ancestral prayers, and traditional pre-wedding vows. During Vratham, the families seek divine grace and wear the protective kappu thread; through Naandhi, ancestors and married elders are honoured and invited to bless the wedding.",
+            "A heartfelt start with family blessings, the kappu thread, and ancestral prayers.",
         },
         {
           time: "10:30 - 11:30 AM",
           title: "Nitchayadartham",
           description:
-            "The formal engagement ceremony where both families bless and celebrate the promise of marriage, affirming the wedding with shared joy, blessings, and tradition.",
+            "The formal engagement, as both families bless and celebrate the promise of marriage.",
         },
         {
           time: "7:00 - 9:00 PM",
           title: "Reception",
           description:
-            "An evening of greetings, warmth, and celebration where family and friends gather to shower the couple with blessings.",
+            "An evening of warmth and celebration with family and friends.",
         },
       ],
     },
     {
       date: "13",
       title: "Sunday · September",
-      subtitle: "Wedding rituals & sacred Muhurtham",
+      subtitle: "Wedding rituals & the auspicious Muhurtham",
       events: [
         {
           time: "7:00 AM",
           title: "Kasi Yathrai & Oonjal",
           description:
-            "Playful and heartfelt rituals before the Muhurtham: the groom is lovingly brought back from his symbolic Kasi journey, and the couple is blessed on the oonjal with songs, prayers, and family joy.",
+            "Playful rituals — the groom's symbolic return and the couple's oonjal blessing.",
         },
         {
           time: "9:00 - 10:30 AM",
           title: "Muhurtham",
           description:
-            "The most auspicious moment of the wedding, held during Thula Lagnam, bringing together Kanyadaanam, Maangalya Dhaaranam, and Saptapadi as we begin our new chapter together.",
+            "Our most sacred moment — Kanyadaanam, Maangalya Dhaaranam, and Saptapadi.",
         },
       ],
     },

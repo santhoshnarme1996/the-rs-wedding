@@ -220,7 +220,11 @@ a {
 }
 
 .hero__petals {
+  position: fixed;
   z-index: 2;
+  width: 100vw;
+  height: 100vh;
+  height: 100svh;
 }
 
 .hero__legibility {
@@ -349,10 +353,19 @@ a {
   text-transform: uppercase;
 }
 
+.countdown__label {
+  margin: 32px 0 0;
+  color: #8f6258;
+  font-size: clamp(10px, 1vw, 12px);
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
 .countdown {
   display: flex;
   gap: 14px;
-  margin-top: 34px;
+  margin-top: 14px;
 }
 
 .countdown > div {
@@ -410,11 +423,16 @@ a {
 }
 
 .section {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
   padding: 84px 22px;
 }
 
 .section__narrow,
 .section__wide {
+  position: relative;
+  z-index: 1;
   width: min(100%, 600px);
   margin: 0 auto;
 }
@@ -423,87 +441,75 @@ a {
   width: min(100%, 820px);
 }
 
-.key-events,
 .invitation,
 .itinerary,
 .story {
   background: #fbf4ef;
 }
 
-.key-events {
-  position: relative;
-  z-index: 6;
-  margin-top: 0;
-  padding-top: 82px;
-  padding-bottom: 64px;
-  background:
-    radial-gradient(circle at 50% 10%, rgba(207, 111, 129, 0.15), transparent 34%),
-    linear-gradient(180deg, #fbf4ef 0%, #fff9f4 52%, #fbf4ef 100%);
+.venue,
+.rsvp-section {
+  background: #f3eef7;
 }
 
-.key-events::before {
-  content: "";
+.invitation::before,
+.venue::before,
+.itinerary::before,
+.rsvp-section::before {
   position: absolute;
-  right: 0;
-  bottom: calc(100% - 1px);
-  left: 0;
-  height: 92px;
-  background: linear-gradient(180deg, rgba(251, 244, 239, 0), #fbf4ef 88%);
+  inset: -120px 0;
+  z-index: 0;
+  background-image:
+    linear-gradient(180deg, var(--section-bg-wash-top, rgba(251, 244, 239, 0.78)), var(--section-bg-wash-bottom, rgba(251, 244, 239, 0.82))),
+    var(--section-bg-image);
+  background-position: center;
+  background-size: cover;
+  content: "";
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 14%, #000 86%, transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0%, #000 14%, #000 86%, transparent 100%);
   pointer-events: none;
 }
 
-.key-events .section__narrow {
-  text-align: center;
+.invitation::after,
+.venue::after,
+.itinerary::after,
+.rsvp-section::after {
+  position: absolute;
+  inset: -1px 0;
+  z-index: 0;
+  background:
+    linear-gradient(180deg, rgba(251, 244, 239, 0.82) 0%, rgba(251, 244, 239, 0) 15%, rgba(251, 244, 239, 0) 85%, rgba(251, 244, 239, 0.82) 100%),
+    radial-gradient(ellipse at center, rgba(255, 250, 246, var(--section-center-glow, 0.5)), transparent 58%);
+  content: "";
+  pointer-events: none;
 }
 
-.key-events .eyebrow {
-  margin-bottom: 22px;
-}
-
-.key-events__list {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-}
-
-.key-events__list--single {
-  grid-template-columns: minmax(280px, 420px);
-  justify-content: center;
-}
-
-.key-event {
-  padding: 26px 22px 24px;
-  border: 1px solid rgba(189, 150, 72, 0.24);
-  border-radius: 26px;
-  background: rgba(255, 255, 255, 0.58);
-  box-shadow: 0 18px 44px rgba(90, 45, 35, 0.1);
-  backdrop-filter: blur(12px);
-}
-
-.key-event h2 {
-  margin-bottom: 10px;
-  color: #5b1f1f;
-  font-size: clamp(2.1rem, 5vw, 3rem);
-}
-
-.key-event p {
-  margin-bottom: 8px;
-  color: #a84a5d;
-  font-size: clamp(1.05rem, 2.4vw, 1.35rem);
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.key-event span {
-  color: #6f5a52;
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
+.invitation {
+  --section-bg-image: url("/section-invitation-bg.png");
+  --section-bg-wash-top: rgba(251, 244, 239, 0.48);
+  --section-bg-wash-bottom: rgba(251, 244, 239, 0.62);
+  --section-center-glow: 0.34;
 }
 
 .venue {
-  background: #f3eef7;
+  --section-bg-image: url("/section-venue-bg.png");
+  --section-bg-wash-top: rgba(243, 238, 247, 0.48);
+  --section-bg-wash-bottom: rgba(251, 244, 239, 0.62);
+  --section-center-glow: 0.42;
+}
+
+.itinerary {
+  --section-bg-image: url("/section-functions-bg.png");
+  --section-bg-wash-top: rgba(251, 244, 239, 0.62);
+  --section-bg-wash-bottom: rgba(251, 244, 239, 0.74);
+  --section-center-glow: 0.52;
+}
+
+.rsvp-section {
+  --section-bg-image: url("/section-rsvp-bg.png");
+  --section-bg-wash-top: rgba(243, 238, 247, 0.42);
+  --section-bg-wash-bottom: rgba(251, 244, 239, 0.62);
+  --section-center-glow: 0.56;
 }
 
 .ornament-divider {
@@ -529,8 +535,9 @@ a {
   height: 24px;
 }
 
-.invitation .section__narrow,
+.invitation .section__wide,
 .venue .section__narrow,
+.rsvp-section .section__narrow,
 .closing .section__narrow {
   text-align: center;
 }
@@ -590,38 +597,195 @@ h2 {
 }
 
 .invitation__message {
-  max-width: 480px;
-  margin: 34px auto 0;
+  max-width: 540px;
+  margin: 0 auto;
   color: #5a443d;
-  font-size: 16px;
-  line-height: 1.9;
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(19px, 2.6vw, 24px);
+  font-weight: 500;
+  line-height: 1.7;
 }
 
-.family-tags {
+.couple-gallery__wrap {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+  margin-top: 36px;
+}
+
+.couple-gallery__cards {
+  position: relative;
+  width: min(90vw, 380px);
+  aspect-ratio: 4 / 5;
+}
+
+.couple-gallery__card {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid rgba(189, 150, 72, 0.22);
+  border-radius: 22px;
+  background: #efe2cf;
+  box-shadow: 0 18px 50px rgba(90, 45, 35, 0.14);
+  transition: transform 0.35s ease, opacity 0.35s ease;
+}
+
+.couple-gallery__card img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.couple-gallery__event {
+  position: relative;
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  gap: 12px;
-  margin-top: 30px;
+  padding: 24px;
+  backdrop-filter: blur(12px);
+  text-align: center;
 }
 
-.family-tags span {
-  padding: 9px 18px;
-  border: 1px solid rgba(207, 111, 129, 0.22);
-  border-radius: 999px;
-  background: rgba(207, 111, 129, 0.1);
-  color: #a84a5d;
-  font-size: 13px;
+.couple-gallery__event::before {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(255, 250, 246, 0.58), rgba(255, 250, 246, 0.72)),
+    radial-gradient(circle at 50% 44%, rgba(255, 255, 255, 0.74), rgba(255, 255, 255, 0.18) 46%, transparent 72%),
+    var(--event-card-image) center / cover no-repeat;
+  content: "";
+  pointer-events: none;
 }
 
-.family-tags span:last-child {
-  border-color: rgba(127, 139, 196, 0.24);
-  background: rgba(127, 139, 196, 0.12);
-  color: #5b67a3;
+.couple-gallery__event--reception {
+  --event-card-image: url("/event-reception-bg.png");
+  background:
+    radial-gradient(circle at 50% 0%, rgba(207, 111, 129, 0.22), transparent 60%),
+    linear-gradient(160deg, rgba(240, 221, 224, 0.85), rgba(255, 255, 255, 0.7));
 }
 
-.venue .eyebrow {
+.couple-gallery__event--wedding {
+  --event-card-image: url("/event-wedding-bg.png");
+  background:
+    radial-gradient(circle at 50% 0%, rgba(189, 150, 72, 0.22), transparent 60%),
+    linear-gradient(160deg, rgba(239, 226, 207, 0.85), rgba(255, 255, 255, 0.7));
+}
+
+.couple-gallery__event h3,
+.couple-gallery__event p,
+.couple-gallery__event span {
+  position: relative;
+  z-index: 1;
+}
+
+.couple-gallery__event h3 {
   margin-bottom: 14px;
+  color: #5b1f1f;
+  font-size: clamp(2rem, 6vw, 2.6rem);
+}
+
+.couple-gallery__event p {
+  margin-bottom: 10px;
+  color: #a84a5d;
+  font-size: clamp(1rem, 2.6vw, 1.2rem);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.couple-gallery__event span {
+  color: #6f5a52;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.couple-gallery__card--active {
+  transform: none;
+  opacity: 1;
+  z-index: 3;
+}
+
+.couple-gallery__card--next {
+  transform: translate(14px, 12px) rotate(6deg) scale(0.93);
+  opacity: 0.85;
+  z-index: 2;
+}
+
+.couple-gallery__card--prev {
+  transform: translate(-14px, 12px) rotate(-6deg) scale(0.93);
+  opacity: 0.85;
+  z-index: 1;
+}
+
+.couple-gallery__card--hidden {
+  transform: scale(0.85);
+  opacity: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.couple-gallery__nav {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.couple-gallery__nav-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(189, 150, 72, 0.3);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.7);
+  color: #6b4034;
+  cursor: pointer;
+}
+
+.couple-gallery__nav-button:hover {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.couple-gallery__nav-button svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.couple-gallery__dots {
+  display: flex;
+  gap: 8px;
+}
+
+.couple-gallery__dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(168, 74, 93, 0.28);
+}
+
+.couple-gallery__dots span.is-active {
+  background: #a84a5d;
+}
+
+.venue .eyebrow,
+.rsvp-section .eyebrow {
+  margin-bottom: 14px;
+}
+
+.rsvp-section .rsvp-card {
+  margin-top: 30px;
 }
 
 .venue-card {
@@ -645,6 +809,37 @@ h2 {
 .venue-card h3 {
   margin-bottom: 12px;
   font-size: 28px;
+}
+
+.venue-card__map {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  margin-top: 22px;
+  border: 1px solid rgba(189, 150, 72, 0.24);
+  border-radius: 16px;
+  aspect-ratio: 4 / 3;
+}
+
+.venue-card__map::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(58, 39, 34, 0.06);
+  transition: background 0.2s ease;
+}
+
+.venue-card__map:hover::after,
+.venue-card__map:focus-visible::after {
+  background: rgba(58, 39, 34, 0.14);
+}
+
+.venue-card__map iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  pointer-events: none;
 }
 
 .button {
@@ -1654,36 +1849,47 @@ h2 {
     padding: 66px 20px;
   }
 
-  .key-events {
-    margin-top: 0;
-    padding: 64px 18px 48px;
+  .invitation::before,
+  .venue::before,
+  .itinerary::before,
+  .rsvp-section::before {
+    background-size: auto 100%;
   }
 
-  .key-events::before {
-    height: 76px;
+  .invitation {
+    --section-bg-wash-top: rgba(251, 244, 239, 0.64);
+    --section-bg-wash-bottom: rgba(251, 244, 239, 0.76);
   }
 
-  .key-events__list {
-    grid-template-columns: 1fr;
-    gap: 14px;
+  .invitation::before {
+    background-position: center;
   }
 
-  .key-event {
-    padding: 24px 18px 22px;
-    border-radius: 24px;
+  .venue {
+    --section-bg-wash-top: rgba(243, 238, 247, 0.64);
+    --section-bg-wash-bottom: rgba(251, 244, 239, 0.76);
   }
 
-  .key-event h2 {
-    font-size: clamp(2.35rem, 11vw, 3rem);
+  .venue::before {
+    background-position: center;
   }
 
-  .key-event p {
-    font-size: 18px;
-    letter-spacing: 0.06em;
+  .itinerary {
+    --section-bg-wash-top: rgba(251, 244, 239, 0.7);
+    --section-bg-wash-bottom: rgba(251, 244, 239, 0.82);
   }
 
-  .key-event span {
-    font-size: 14px;
+  .itinerary::before {
+    background-position: center;
+  }
+
+  .rsvp-section {
+    --section-bg-wash-top: rgba(243, 238, 247, 0.58);
+    --section-bg-wash-bottom: rgba(251, 244, 239, 0.76);
+  }
+
+  .rsvp-section::before {
+    background-position: center;
   }
 
   .rsvp-card {

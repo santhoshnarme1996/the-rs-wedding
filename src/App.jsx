@@ -54,7 +54,6 @@ function usePetals(canvasRef) {
     }
 
     const context = canvas.getContext("2d");
-    const parent = canvas.parentElement;
     const palette = ["#f4c4ce", "#f7d9e0", "#ffffff", "#cdd3f0", "#f6c9b6"];
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     let frameId = 0;
@@ -76,9 +75,8 @@ function usePetals(canvasRef) {
     });
 
     const resize = () => {
-      const bounds = parent.getBoundingClientRect();
-      width = bounds.width;
-      height = bounds.height;
+      width = window.innerWidth;
+      height = window.innerHeight;
       canvas.width = width * dpr;
       canvas.height = height * dpr;
       context.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -185,11 +183,84 @@ function VenuePin() {
   );
 }
 
+const couplePhotos = ["/RS-Couple-2.jpeg", "/RS-Couple-1.jpeg", "/RS-Couple-3.jpeg", "/RS-Couple-4.jpeg"];
+
+function InvitationStack({ events }) {
+  const cards = [
+    ...couplePhotos.map((photo) => ({ type: "photo", key: photo, src: photo })),
+    ...events.map((event) => ({ type: "event", key: event.id, event })),
+  ];
+  const [index, setIndex] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+
+  const go = (direction) => {
+    setIndex((current) => (current + direction + cards.length) % cards.length);
+  };
+
+  const goManually = (direction) => {
+    setIsAutoPlaying(false);
+    go(direction);
+  };
+
+  useEffect(() => {
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (!isAutoPlaying || reducedMotion || cards.length <= 1) {
+      return undefined;
+    }
+
+    const intervalId = window.setInterval(() => go(1), 4500);
+
+    return () => window.clearInterval(intervalId);
+  }, [isAutoPlaying, cards.length]);
+
+  return (
+    <div className="couple-gallery__wrap">
+      <div className="couple-gallery__cards">
+        {cards.map((card, cardIndex) => {
+          let diff = cardIndex - index;
+          if (diff > cards.length / 2) diff -= cards.length;
+          if (diff < -cards.length / 2) diff += cards.length;
+          const position = diff === 0 ? "active" : diff === 1 ? "next" : diff === -1 ? "prev" : "hidden";
+
+          return (
+            <figure className={`couple-gallery__card couple-gallery__card--${position}`} key={card.key}>
+              {card.type === "photo" ? (
+                <img src={card.src} alt="Santhosh and Rithikha" loading="lazy" />
+              ) : (
+                <div className={`couple-gallery__event couple-gallery__event--${card.event.id}`}>
+                  <h3>{card.event.title}</h3>
+                  <p>{card.event.date}</p>
+                  <span>{card.event.time}</span>
+                </div>
+              )}
+            </figure>
+          );
+        })}
+      </div>
+      <div className="couple-gallery__nav">
+        <button type="button" className="couple-gallery__nav-button" aria-label="Previous" onClick={() => goManually(-1)}>
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m10 3-5 5 5 5" /></svg>
+        </button>
+        <div className="couple-gallery__dots">
+          {cards.map((card, cardIndex) => (
+            <span className={cardIndex === index ? "is-active" : ""} key={card.key} />
+          ))}
+        </div>
+        <button type="button" className="couple-gallery__nav-button" aria-label="Next" onClick={() => goManually(1)}>
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m6 3 5 5-5 5" /></svg>
+        </button>
+      </div>
+    </div>
+  );
+}
+
 const menuItems = [
   { href: "#top", label: "Home" },
-  { href: "#events", label: "Events" },
-  { href: "#venue", label: "Venue & RSVP" },
+  { href: "#events", label: "Our Invitation" },
+  { href: "#venue", label: "Venue" },
   { href: "#itinerary", label: "Functions" },
+  { href: "#rsvp", label: "RSVP", requiresInvite: true },
   { label: "Live Stream", comingSoon: true },
   { label: "Upload Photos", comingSoon: true },
 ];
@@ -1121,6 +1192,8 @@ function AdminPortal({ requireSuper = false } = {}) {
 function FloatingMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const [isCompact, setIsCompact] = useState(false);
+  const [hasInvite] = useState(() => Boolean(new URLSearchParams(window.location.search).get("invite")));
+  const visibleMenuItems = menuItems.filter((item) => !item.requiresInvite || hasInvite);
 
   useEffect(() => {
     const updateMode = () => {
@@ -1156,7 +1229,7 @@ function FloatingMenu() {
   return (
     <nav className={`top-menu${isCompact ? " top-menu--compact" : ""}${isOpen ? " top-menu--open" : ""}`} aria-label="Wedding invite navigation">
       <div className="top-menu__panel" id="floating-menu-links" aria-hidden={isCompact && !isOpen}>
-        {menuItems.map((item) => (
+        {visibleMenuItems.map((item) => (
           item.comingSoon ? (
             <span className="top-menu__coming-soon" key={item.label} title="Coming soon">
               {item.label}
@@ -1271,9 +1344,9 @@ function App() {
     return <AdminPortal requireSuper />;
   }
 
+  const inviteCode = new URLSearchParams(window.location.search).get("invite");
   const isRithikhaInvite = invite?.hostFamily === "rithikha";
   const couple = isRithikhaInvite ? [...weddingData.couple].reverse() : weddingData.couple;
-  const families = isRithikhaInvite ? [...weddingData.families].reverse() : weddingData.families;
   const keyEvents = weddingData.keyEvents.filter((event) => {
     if (!invite) {
       return true;
@@ -1312,44 +1385,30 @@ function App() {
             <b>{weddingData.weddingDate}</b>
             <span />
           </div>
+          <p className="countdown__label">The celebration begins in</p>
           <div className="countdown" aria-live="polite">
             <div><strong>{countdown.days}</strong><span>Days</span></div>
             <div><strong>{countdown.hours}</strong><span>Hours</span></div>
             <div><strong>{countdown.minutes}</strong><span>Minutes</span></div>
           </div>
           <a className="scroll-invite" href="#events">
-            <span>Key events</span>
+            <span>Our invitation</span>
             <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m3 6 5 5 5-5" /></svg>
           </a>
         </div>
       </section>
 
       <main>
-        <section className="section key-events" id="events">
-          <div className="section__narrow" data-reveal>
-            <p className="eyebrow">Join us for</p>
-            <div className={`key-events__list${keyEvents.length === 1 ? " key-events__list--single" : ""}`}>
-              {keyEvents.map((event) => (
-                <article className="key-event" key={event.title}>
-                  <h2>{event.title}</h2>
-                  <p>{event.date}</p>
-                  <span>{event.time}</span>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="section invitation" id="invitation">
-          <div className="section__narrow" data-reveal>
+        <section className="section invitation" id="events">
+          <div className="section__wide" data-reveal>
+            {/* Commented out for now - may bring back later
             <OrnamentDivider />
             <p className="invitation__sanskrit">{weddingData.invitation.sanskrit}</p>
             <p className="invitation__transliteration">{weddingData.invitation.transliteration}</p>
-            <p className="invitation__quote">“{weddingData.invitation.blessing}”</p>
+            <p className="invitation__quote">"{weddingData.invitation.blessing}"</p>
+            */}
             <p className="invitation__message">{weddingData.invitation.message}</p>
-            <div className="family-tags">
-              {families.map((family) => <span key={family}>{family}</span>)}
-            </div>
+            <InvitationStack events={keyEvents} />
           </div>
         </section>
 
@@ -1362,11 +1421,17 @@ function App() {
               <p className="venue-card__eyebrow">Ceremony & Reception</p>
               <h3>{weddingData.venue.name}</h3>
               <p>{weddingData.venue.description}</p>
-              <a className="button" href={weddingData.venue.directionsHref}><VenuePin />Get directions</a>
-            </div>
-            {inviteStatus === "error" && <p className="rsvp-card__message rsvp-card__message--error">This invite link could not be found. Please check the link shared with you.</p>}
-            <div id="rsvp">
-              <RsvpCard invite={invite} />
+              <a className="venue-card__map" href={weddingData.venue.directionsHref} target="_blank" rel="noreferrer" aria-label={`Open ${weddingData.venue.name} in Google Maps`}>
+                <iframe
+                  src={`${weddingData.venue.directionsHref}&output=embed`}
+                  title={`Map to ${weddingData.venue.name}`}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  tabIndex={-1}
+                  aria-hidden="true"
+                />
+              </a>
+              <a className="button" href={weddingData.venue.directionsHref} target="_blank" rel="noreferrer"><VenuePin />Get directions</a>
             </div>
           </div>
         </section>
@@ -1400,6 +1465,18 @@ function App() {
           </div>
         </section>}
 
+        {inviteCode && (
+          <section className="section rsvp-section" id="rsvp">
+            <div className="section__narrow" data-reveal>
+              <OrnamentDivider />
+              <p className="eyebrow">RSVP</p>
+              <h2>Let us know you&apos;re coming</h2>
+              {inviteStatus === "error" && <p className="rsvp-card__message rsvp-card__message--error">This invite link could not be found. Please check the link shared with you.</p>}
+              <RsvpCard invite={invite} />
+            </div>
+          </section>
+        )}
+
         {weddingData.showCoupleSection && (
           <section className="section story" id="story">
             <div className="section__wide">
@@ -1430,7 +1507,7 @@ function App() {
             <OrnamentDivider />
             <p className="eyebrow">With love & gratitude</p>
             <h2>We look forward to<br />celebrating with you</h2>
-            <p>Your presence is the greatest blessing of all. We can’t wait to share these sacred days, and a lifetime of joy, with the people we hold dearest.</p>
+            <p>Your presence is the greatest blessing of all. We can’t wait to share these precious days, and a lifetime of joy, with the people we hold dearest.</p>
             <p className="closing__names">Santhosh & Rithikha</p>
             <p className="closing__tamil">நன்றி · வாழ்க வளமுடன்</p>
           </div>
