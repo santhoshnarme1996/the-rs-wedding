@@ -489,6 +489,7 @@ a {
   --section-bg-wash-top: rgba(251, 244, 239, 0.48);
   --section-bg-wash-bottom: rgba(251, 244, 239, 0.62);
   --section-center-glow: 0.34;
+  padding-bottom: 40px;
 }
 
 .venue {
@@ -496,6 +497,7 @@ a {
   --section-bg-wash-top: rgba(243, 238, 247, 0.48);
   --section-bg-wash-bottom: rgba(251, 244, 239, 0.62);
   --section-center-glow: 0.42;
+  padding-top: 40px;
 }
 
 .itinerary {
