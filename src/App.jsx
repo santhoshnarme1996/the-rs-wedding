@@ -428,7 +428,6 @@ function RsvpCard({ invite }) {
   if (status === "loading") {
     return (
       <div className="rsvp-card">
-        <p className="rsvp-card__eyebrow">RSVP</p>
         <h3>Checking your saved RSVP...</h3>
       </div>
     );
@@ -437,7 +436,6 @@ function RsvpCard({ invite }) {
   if (!invite) {
     return (
       <div className="rsvp-card rsvp-card--saved">
-        <p className="rsvp-card__eyebrow">RSVP</p>
         <h3>Personalized RSVP</h3>
         <p className="rsvp-card__intro">Please use the invite link shared by our families to RSVP.</p>
       </div>
@@ -472,7 +470,6 @@ function RsvpCard({ invite }) {
 
   return (
     <form className="rsvp-card" onSubmit={saveRsvp}>
-      <p className="rsvp-card__eyebrow">RSVP</p>
       <h3>We&apos;d love to celebrate with you.</h3>
       <p className="rsvp-card__intro">Kindly let us know if you&apos;ll be able to attend.</p>
 
@@ -1474,7 +1471,6 @@ function App() {
             <div className="section__narrow" data-reveal>
               <OrnamentDivider />
               <p className="eyebrow">RSVP</p>
-              <h2>Let us know you&apos;re coming</h2>
               {inviteStatus === "error" && <p className="rsvp-card__message rsvp-card__message--error">This invite link could not be found. Please check the link shared with you.</p>}
               <RsvpCard invite={invite} />
             </div>
