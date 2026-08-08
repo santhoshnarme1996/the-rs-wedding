@@ -1393,7 +1393,9 @@ function App() {
             <p className="invitation__transliteration">{weddingData.invitation.transliteration}</p>
             <p className="invitation__quote">"{weddingData.invitation.blessing}"</p>
             */}
+            {/* Couple photos gallery hidden for now - may bring back later
             <InvitationStack />
+            */}
             <p className="invitation__message">{weddingData.invitation.message}</p>
             {keyEvents.length > 0 && (
               <div className="event-tiles">
