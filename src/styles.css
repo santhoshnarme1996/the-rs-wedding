@@ -1328,8 +1328,64 @@ h2 {
   margin-top: 0;
 }
 
-.photo-gallery__upload {
+.photo-gallery__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
   margin-bottom: 20px;
+}
+
+.photo-gallery__tab {
+  border: 1px solid rgba(189, 150, 72, 0.32);
+  border-radius: 999px;
+  padding: 9px 18px;
+  background: rgba(255, 255, 255, 0.5);
+  color: #6b4034;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
+.photo-gallery__tab.is-active {
+  border-color: transparent;
+  background: linear-gradient(135deg, #6a2625, #82423b);
+  color: #fff9f4;
+}
+
+.photo-gallery__upload {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.photo-gallery__event-select {
+  display: grid;
+  gap: 4px;
+}
+
+.photo-gallery__event-select span {
+  color: #6b4034;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.photo-gallery__event-select select {
+  border: 1px solid rgba(189, 150, 72, 0.32);
+  border-radius: 14px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.7);
+  color: #3a2722;
+  font: inherit;
+  font-size: 13px;
+}
+
+.photo-gallery__upload .button {
+  margin-top: 0;
 }
 
 .photo-gallery__file-input {
@@ -1361,11 +1417,33 @@ h2 {
   box-shadow: 0 14px 34px rgba(90, 45, 35, 0.1);
 }
 
+.photo-gallery__image-wrap {
+  position: relative;
+}
+
 .photo-gallery__item img {
   display: block;
   width: 100%;
   aspect-ratio: 4 / 5;
   object-fit: cover;
+}
+
+.photo-gallery__avatar {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
+  border-radius: 999px;
+  box-shadow: 0 4px 10px rgba(90, 45, 35, 0.28);
+  color: #fff9f4;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .photo-gallery__item figcaption {
