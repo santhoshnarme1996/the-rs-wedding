@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { weddingData } from "./data";
+import PhotoGallery from "./PhotoGallery";
 
 function useCountdown(targetDate) {
   const calculate = () => {
@@ -251,7 +252,7 @@ const menuItems = [
   { href: "#itinerary", label: "Functions" },
   { href: "#rsvp", label: "RSVP", requiresInvite: true },
   { label: "Live Stream", comingSoon: true },
-  { label: "Upload Photos", comingSoon: true },
+  { href: "/photos", label: "Upload Photos" },
 ];
 
 const emptyRsvp = {
@@ -1328,6 +1329,10 @@ function App() {
 
   if (window.location.pathname === "/super") {
     return <AdminPortal requireSuper />;
+  }
+
+  if (window.location.pathname === "/photos") {
+    return <PhotoGallery />;
   }
 
   const inviteCode = new URLSearchParams(window.location.search).get("invite");

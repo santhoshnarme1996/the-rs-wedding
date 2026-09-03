@@ -53,6 +53,28 @@ export const ensureSchema = async (sql) => {
   await sql`ALTER TABLE rsvps DROP CONSTRAINT IF EXISTS rsvps_guest_count_check`;
   await sql`ALTER TABLE rsvps ADD CONSTRAINT rsvps_guest_count_check CHECK (guest_count BETWEEN 0 AND 20)`;
   await sql`CREATE UNIQUE INDEX IF NOT EXISTS rsvps_invitee_id_unique ON rsvps(invitee_id) WHERE invitee_id IS NOT NULL`;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS guest_profiles (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      name TEXT NOT NULL,
+      phone TEXT UNIQUE NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS guest_photos (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      profile_id UUID NOT NULL REFERENCES guest_profiles(id) ON DELETE CASCADE,
+      s3_key TEXT NOT NULL,
+      url TEXT NOT NULL,
+      caption TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+
+  await sql`CREATE INDEX IF NOT EXISTS guest_photos_profile_id_idx ON guest_photos(profile_id)`;
 };
 
 export const serializeRsvp = (row) => ({
@@ -88,6 +110,22 @@ export const serializeInvitee = (row) => ({
   isActive: row.is_active,
   createdAt: row.created_at,
   updatedAt: row.updated_at,
+});
+
+export const serializeProfile = (row) => ({
+  id: row.id,
+  name: row.name,
+  phone: row.phone,
+  createdAt: row.created_at,
+});
+
+export const serializePhoto = (row) => ({
+  id: row.id,
+  profileId: row.profile_id,
+  url: row.url,
+  caption: row.caption || "",
+  uploaderName: row.name,
+  createdAt: row.created_at,
 });
 
 export const handleDatabaseError = (error, response) => {
