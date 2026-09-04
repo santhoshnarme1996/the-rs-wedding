@@ -9,7 +9,7 @@ const normalizeBody = (body) => {
   return body || {};
 };
 
-const VALID_EVENTS = ["engagement", "reception", "wedding"];
+const VALID_EVENTS = ["viratham-engagement", "sangeet", "reception", "oonjal-muhurtham", "nalangu"];
 
 const parseCapturedAt = (value) => {
   if (!value) {

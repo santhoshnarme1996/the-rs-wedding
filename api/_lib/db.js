@@ -78,8 +78,10 @@ export const ensureSchema = async (sql) => {
 
   await sql`ALTER TABLE guest_photos ADD COLUMN IF NOT EXISTS event TEXT NOT NULL DEFAULT 'reception'`;
   await sql`ALTER TABLE guest_photos ADD COLUMN IF NOT EXISTS captured_at TIMESTAMPTZ`;
+  await sql`UPDATE guest_photos SET event = 'viratham-engagement' WHERE event = 'engagement'`;
+  await sql`UPDATE guest_photos SET event = 'oonjal-muhurtham' WHERE event = 'wedding'`;
   await sql`ALTER TABLE guest_photos DROP CONSTRAINT IF EXISTS guest_photos_event_check`;
-  await sql`ALTER TABLE guest_photos ADD CONSTRAINT guest_photos_event_check CHECK (event IN ('engagement', 'reception', 'wedding'))`;
+  await sql`ALTER TABLE guest_photos ADD CONSTRAINT guest_photos_event_check CHECK (event IN ('viratham-engagement', 'sangeet', 'reception', 'oonjal-muhurtham', 'nalangu'))`;
   await sql`CREATE INDEX IF NOT EXISTS guest_photos_profile_id_idx ON guest_photos(profile_id)`;
   await sql`CREATE INDEX IF NOT EXISTS guest_photos_event_idx ON guest_photos(event)`;
 };
