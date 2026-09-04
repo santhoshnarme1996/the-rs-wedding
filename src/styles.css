@@ -1334,6 +1334,8 @@ h2 {
   width: 28px;
   pointer-events: none;
   z-index: 1;
+  opacity: 0;
+  transition: opacity 0.2s ease;
 }
 
 .photo-gallery__tabs-wrap::before {
@@ -1344,6 +1346,11 @@ h2 {
 .photo-gallery__tabs-wrap::after {
   right: 0;
   background: linear-gradient(270deg, #f4ecf4, rgba(244, 236, 244, 0));
+}
+
+.photo-gallery__tabs-wrap--scrolled::before,
+.photo-gallery__tabs-wrap--more::after {
+  opacity: 1;
 }
 
 .photo-gallery__tabs {
@@ -1359,6 +1366,25 @@ h2 {
 
 .photo-gallery__tabs::-webkit-scrollbar {
   display: none;
+}
+
+@keyframes photo-gallery-tabs-nudge {
+  0% {
+    transform: translateX(0);
+  }
+  35% {
+    transform: translateX(-22px);
+  }
+  65% {
+    transform: translateX(4px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.photo-gallery__tabs--nudge {
+  animation: photo-gallery-tabs-nudge 0.8s cubic-bezier(0.33, 1, 0.68, 1) 1;
 }
 
 .photo-gallery__tab {

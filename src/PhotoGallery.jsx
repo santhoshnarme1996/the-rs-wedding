@@ -195,6 +195,7 @@ function ProfileForm({ onCreated }) {
 
 function PhotoGallery() {
   const fileInputRef = useRef(null);
+  const tabsRef = useRef(null);
   const [profile, setProfile] = useState(null);
   const [status, setStatus] = useState("loading");
   const [message, setMessage] = useState("");
@@ -202,6 +203,43 @@ function PhotoGallery() {
   const [uploadCount, setUploadCount] = useState(0);
   const [activeTab, setActiveTab] = useState(EVENT_TABS[0].id);
   const [uploadEvent, setUploadEvent] = useState(EVENT_TABS[0].id);
+  const [tabsScroll, setTabsScroll] = useState({ atStart: true, atEnd: false });
+
+  useEffect(() => {
+    const node = tabsRef.current;
+
+    if (!node || !profile) {
+      return undefined;
+    }
+
+    const updateScrollState = () => {
+      const maxScrollLeft = node.scrollWidth - node.clientWidth;
+
+      setTabsScroll({
+        atStart: node.scrollLeft <= 4,
+        atEnd: node.scrollLeft >= maxScrollLeft - 4,
+      });
+    };
+
+    updateScrollState();
+    node.addEventListener("scroll", updateScrollState, { passive: true });
+    window.addEventListener("resize", updateScrollState);
+
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let nudgeTimeoutId;
+
+    if (!reducedMotion && node.scrollWidth > node.clientWidth + 4) {
+      nudgeTimeoutId = window.setTimeout(() => {
+        node.classList.add("photo-gallery__tabs--nudge");
+      }, 700);
+    }
+
+    return () => {
+      node.removeEventListener("scroll", updateScrollState);
+      window.removeEventListener("resize", updateScrollState);
+      window.clearTimeout(nudgeTimeoutId);
+    };
+  }, [profile?.id]);
 
   const loadPhotos = async () => {
     try {
@@ -398,8 +436,10 @@ function PhotoGallery() {
               <h3>Hi {profile.name}</h3>
             </header>
 
-            <div className="photo-gallery__tabs-wrap">
-              <nav className="photo-gallery__tabs" aria-label="Photo albums">
+            <div
+              className={`photo-gallery__tabs-wrap${tabsScroll.atStart ? "" : " photo-gallery__tabs-wrap--scrolled"}${tabsScroll.atEnd ? "" : " photo-gallery__tabs-wrap--more"}`}
+            >
+              <nav ref={tabsRef} className="photo-gallery__tabs" aria-label="Photo albums">
                 {EVENT_TABS.map((tab) => (
                   <button
                     key={tab.id}
