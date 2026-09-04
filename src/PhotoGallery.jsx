@@ -203,7 +203,6 @@ function PhotoGallery() {
   const [uploadCount, setUploadCount] = useState(0);
   const [activeTab, setActiveTab] = useState(EVENT_TABS[0].id);
   const [uploadEvent, setUploadEvent] = useState(EVENT_TABS[0].id);
-  const [tabsScroll, setTabsScroll] = useState({ atStart: true, atEnd: false });
 
   useEffect(() => {
     const node = tabsRef.current;
@@ -211,19 +210,6 @@ function PhotoGallery() {
     if (!node || !profile) {
       return undefined;
     }
-
-    const updateScrollState = () => {
-      const maxScrollLeft = node.scrollWidth - node.clientWidth;
-
-      setTabsScroll({
-        atStart: node.scrollLeft <= 4,
-        atEnd: node.scrollLeft >= maxScrollLeft - 4,
-      });
-    };
-
-    updateScrollState();
-    node.addEventListener("scroll", updateScrollState, { passive: true });
-    window.addEventListener("resize", updateScrollState);
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let nudgeTimeoutId;
@@ -235,8 +221,6 @@ function PhotoGallery() {
     }
 
     return () => {
-      node.removeEventListener("scroll", updateScrollState);
-      window.removeEventListener("resize", updateScrollState);
       window.clearTimeout(nudgeTimeoutId);
     };
   }, [profile?.id]);
@@ -436,9 +420,7 @@ function PhotoGallery() {
               <h3>Hi {profile.name}</h3>
             </header>
 
-            <div
-              className={`photo-gallery__tabs-wrap${tabsScroll.atStart ? "" : " photo-gallery__tabs-wrap--scrolled"}${tabsScroll.atEnd ? "" : " photo-gallery__tabs-wrap--more"}`}
-            >
+            <div className="photo-gallery__tabs-wrap">
               <nav ref={tabsRef} className="photo-gallery__tabs" aria-label="Photo albums">
                 {EVENT_TABS.map((tab) => (
                   <button
