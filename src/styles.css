@@ -1273,7 +1273,7 @@ h2 {
 .photo-gallery-page {
   min-height: 100vh;
   min-height: 100svh;
-  padding: 42px 22px;
+  padding: 96px 22px 42px;
   background:
     radial-gradient(circle at 12% 8%, rgba(207, 111, 129, 0.16), transparent 34%),
     radial-gradient(circle at 88% 12%, rgba(127, 139, 196, 0.18), transparent 32%),
@@ -1312,10 +1312,6 @@ h2 {
 }
 
 .photo-gallery__header {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 24px;
   margin-bottom: 28px;
 }
 
@@ -1324,18 +1320,49 @@ h2 {
   font-size: clamp(1.8rem, 4vw, 2.4rem);
 }
 
-.photo-gallery__header .button {
-  margin-top: 0;
+.photo-gallery__tabs-wrap {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.photo-gallery__tabs-wrap::before,
+.photo-gallery__tabs-wrap::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 4px;
+  width: 28px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.photo-gallery__tabs-wrap::before {
+  left: 0;
+  background: linear-gradient(90deg, #f4ecf4, rgba(244, 236, 244, 0));
+}
+
+.photo-gallery__tabs-wrap::after {
+  right: 0;
+  background: linear-gradient(270deg, #f4ecf4, rgba(244, 236, 244, 0));
 }
 
 .photo-gallery__tabs {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 8px;
-  margin-bottom: 20px;
+  overflow-x: auto;
+  padding: 2px 4px 4px;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.photo-gallery__tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .photo-gallery__tab {
+  flex: 0 0 auto;
   border: 1px solid rgba(189, 150, 72, 0.32);
   border-radius: 999px;
   padding: 9px 18px;
@@ -1344,7 +1371,15 @@ h2 {
   font-size: 12.5px;
   font-weight: 700;
   letter-spacing: 0.04em;
+  white-space: nowrap;
+  scroll-snap-align: start;
   cursor: pointer;
+}
+
+.photo-gallery__tab--mine {
+  margin-left: 6px;
+  border-left: 1px solid rgba(189, 150, 72, 0.32);
+  padding-left: 24px;
 }
 
 .photo-gallery__tab.is-active {
@@ -2138,11 +2173,6 @@ h2 {
   .admin-page,
   .photo-gallery-page {
     padding: 28px 16px;
-  }
-
-  .photo-gallery__header {
-    display: grid;
-    align-items: start;
   }
 
   .admin-header {

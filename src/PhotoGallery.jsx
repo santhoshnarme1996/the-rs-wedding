@@ -3,9 +3,11 @@ import { useEffect, useRef, useState } from "react";
 const MAX_FILE_BYTES = 10 * 1024 * 1024;
 
 const EVENT_TABS = [
-  { id: "engagement", label: "Engagement" },
+  { id: "viratham-engagement", label: "Viratham & Engagement" },
+  { id: "sangeet", label: "Sangeet" },
   { id: "reception", label: "Reception" },
-  { id: "wedding", label: "Wedding" },
+  { id: "oonjal-muhurtham", label: "Oonjal & Muhurtham" },
+  { id: "nalangu", label: "Nalangu" },
 ];
 
 const EXIF_DATE_PATTERN = /^(\d{4}):(\d{2}):(\d{2}) (\d{2}):(\d{2}):(\d{2})/;
@@ -198,8 +200,8 @@ function PhotoGallery() {
   const [message, setMessage] = useState("");
   const [photos, setPhotos] = useState([]);
   const [uploadCount, setUploadCount] = useState(0);
-  const [activeTab, setActiveTab] = useState("engagement");
-  const [uploadEvent, setUploadEvent] = useState("engagement");
+  const [activeTab, setActiveTab] = useState(EVENT_TABS[0].id);
+  const [uploadEvent, setUploadEvent] = useState(EVENT_TABS[0].id);
 
   const loadPhotos = async () => {
     try {
@@ -275,13 +277,6 @@ function PhotoGallery() {
     window.localStorage.setItem("galleryProfileId", createdProfile.id);
     window.localStorage.setItem("galleryProfileName", createdProfile.name);
     setProfile(createdProfile);
-  };
-
-  const switchProfile = () => {
-    window.localStorage.removeItem("galleryProfileId");
-    window.localStorage.removeItem("galleryProfileName");
-    setProfile(null);
-    setPhotos([]);
   };
 
   const uploadFile = async (file) => {
@@ -399,34 +394,31 @@ function PhotoGallery() {
         ) : (
           <>
             <header className="photo-gallery__header">
-              <div>
-                <p className="eyebrow">Upload photos</p>
-                <h3>Hi {profile.name}</h3>
-              </div>
-              <button className="button button--ghost" type="button" onClick={switchProfile}>
-                Switch profile
-              </button>
+              <p className="eyebrow">Upload photos</p>
+              <h3>Hi {profile.name}</h3>
             </header>
 
-            <nav className="photo-gallery__tabs" aria-label="Photo albums">
-              {EVENT_TABS.map((tab) => (
+            <div className="photo-gallery__tabs-wrap">
+              <nav className="photo-gallery__tabs" aria-label="Photo albums">
+                {EVENT_TABS.map((tab) => (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    className={`photo-gallery__tab${activeTab === tab.id ? " is-active" : ""}`}
+                    onClick={() => selectTab(tab.id)}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
                 <button
-                  key={tab.id}
                   type="button"
-                  className={`photo-gallery__tab${activeTab === tab.id ? " is-active" : ""}`}
-                  onClick={() => selectTab(tab.id)}
+                  className={`photo-gallery__tab photo-gallery__tab--mine${activeTab === "mine" ? " is-active" : ""}`}
+                  onClick={() => selectTab("mine")}
                 >
-                  {tab.label}
+                  My Photos
                 </button>
-              ))}
-              <button
-                type="button"
-                className={`photo-gallery__tab${activeTab === "mine" ? " is-active" : ""}`}
-                onClick={() => selectTab("mine")}
-              >
-                My Photos
-              </button>
-            </nav>
+              </nav>
+            </div>
 
             <div className="photo-gallery__upload">
               <label className="photo-gallery__event-select">
