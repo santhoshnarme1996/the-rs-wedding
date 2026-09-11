@@ -247,11 +247,11 @@ function InvitationStack() {
 }
 
 const menuItems = [
-  { href: "#top", label: "Home" },
-  { href: "#events", label: "Our Invitation" },
-  { href: "#venue", label: "Venue" },
-  { href: "#itinerary", label: "Functions" },
-  { href: "#rsvp", label: "RSVP", requiresInvite: true },
+  { href: "/#top", label: "Home" },
+  { href: "/#events", label: "Our Invitation" },
+  { href: "/#venue", label: "Venue" },
+  { href: "/#itinerary", label: "Functions" },
+  { href: "/#rsvp", label: "RSVP", requiresInvite: true },
   { href: "/live", label: "Live Stream" },
   { href: "/photos", label: "Upload Photos" },
 ];
@@ -1333,7 +1333,12 @@ function App() {
   }
 
   if (window.location.pathname === "/photos") {
-    return <PhotoGallery />;
+    return (
+      <>
+        <FloatingMenu />
+        <PhotoGallery />
+      </>
+    );
   }
 
   if (window.location.pathname === "/live") {

@@ -3,9 +3,11 @@ import { useEffect, useRef, useState } from "react";
 const MAX_FILE_BYTES = 10 * 1024 * 1024;
 
 const EVENT_TABS = [
-  { id: "engagement", label: "Engagement" },
+  { id: "viratham-engagement", label: "Viratham & Engagement" },
+  { id: "sangeet", label: "Sangeet" },
   { id: "reception", label: "Reception" },
-  { id: "wedding", label: "Wedding" },
+  { id: "oonjal-muhurtham", label: "Oonjal & Muhurtham" },
+  { id: "nalangu", label: "Nalangu" },
 ];
 
 const EXIF_DATE_PATTERN = /^(\d{4}):(\d{2}):(\d{2}) (\d{2}):(\d{2}):(\d{2})/;
@@ -193,13 +195,35 @@ function ProfileForm({ onCreated }) {
 
 function PhotoGallery() {
   const fileInputRef = useRef(null);
+  const tabsRef = useRef(null);
   const [profile, setProfile] = useState(null);
   const [status, setStatus] = useState("loading");
   const [message, setMessage] = useState("");
   const [photos, setPhotos] = useState([]);
   const [uploadCount, setUploadCount] = useState(0);
-  const [activeTab, setActiveTab] = useState("engagement");
-  const [uploadEvent, setUploadEvent] = useState("engagement");
+  const [activeTab, setActiveTab] = useState(EVENT_TABS[0].id);
+  const [uploadEvent, setUploadEvent] = useState(EVENT_TABS[0].id);
+
+  useEffect(() => {
+    const node = tabsRef.current;
+
+    if (!node || !profile) {
+      return undefined;
+    }
+
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let nudgeTimeoutId;
+
+    if (!reducedMotion && node.scrollWidth > node.clientWidth + 4) {
+      nudgeTimeoutId = window.setTimeout(() => {
+        node.classList.add("photo-gallery__tabs--nudge");
+      }, 700);
+    }
+
+    return () => {
+      window.clearTimeout(nudgeTimeoutId);
+    };
+  }, [profile?.id]);
 
   const loadPhotos = async () => {
     try {
@@ -275,13 +299,6 @@ function PhotoGallery() {
     window.localStorage.setItem("galleryProfileId", createdProfile.id);
     window.localStorage.setItem("galleryProfileName", createdProfile.name);
     setProfile(createdProfile);
-  };
-
-  const switchProfile = () => {
-    window.localStorage.removeItem("galleryProfileId");
-    window.localStorage.removeItem("galleryProfileName");
-    setProfile(null);
-    setPhotos([]);
   };
 
   const uploadFile = async (file) => {
@@ -399,34 +416,31 @@ function PhotoGallery() {
         ) : (
           <>
             <header className="photo-gallery__header">
-              <div>
-                <p className="eyebrow">Upload photos</p>
-                <h3>Hi {profile.name}</h3>
-              </div>
-              <button className="button button--ghost" type="button" onClick={switchProfile}>
-                Switch profile
-              </button>
+              <p className="eyebrow">Upload photos</p>
+              <h3>Hi {profile.name}</h3>
             </header>
 
-            <nav className="photo-gallery__tabs" aria-label="Photo albums">
-              {EVENT_TABS.map((tab) => (
+            <div className="photo-gallery__tabs-wrap">
+              <nav ref={tabsRef} className="photo-gallery__tabs" aria-label="Photo albums">
+                {EVENT_TABS.map((tab) => (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    className={`photo-gallery__tab${activeTab === tab.id ? " is-active" : ""}`}
+                    onClick={() => selectTab(tab.id)}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
                 <button
-                  key={tab.id}
                   type="button"
-                  className={`photo-gallery__tab${activeTab === tab.id ? " is-active" : ""}`}
-                  onClick={() => selectTab(tab.id)}
+                  className={`photo-gallery__tab photo-gallery__tab--mine${activeTab === "mine" ? " is-active" : ""}`}
+                  onClick={() => selectTab("mine")}
                 >
-                  {tab.label}
+                  My Photos
                 </button>
-              ))}
-              <button
-                type="button"
-                className={`photo-gallery__tab${activeTab === "mine" ? " is-active" : ""}`}
-                onClick={() => selectTab("mine")}
-              >
-                My Photos
-              </button>
-            </nav>
+              </nav>
+            </div>
 
             <div className="photo-gallery__upload">
               <label className="photo-gallery__event-select">
