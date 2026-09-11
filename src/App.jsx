@@ -1342,7 +1342,12 @@ function App() {
   }
 
   if (window.location.pathname === "/live") {
-    return <LiveStream />;
+    return (
+      <>
+        <FloatingMenu />
+        <LiveStream />
+      </>
+    );
   }
 
   const inviteCode = new URLSearchParams(window.location.search).get("invite");

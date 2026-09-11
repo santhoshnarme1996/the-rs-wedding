@@ -1280,6 +1280,13 @@ h2 {
     linear-gradient(180deg, #fbf4ef, #f4ecf4);
 }
 
+.live-stream-page {
+  min-height: 100vh;
+  min-height: 100svh;
+  padding: 96px 22px 42px;
+  background: #fbf4ef;
+}
+
 .photo-gallery {
   width: min(100%, 960px);
   margin: 0 auto;
@@ -2210,7 +2217,8 @@ h2 {
   }
 
   .admin-page,
-  .photo-gallery-page {
+  .photo-gallery-page,
+  .live-stream-page {
     padding: 28px 16px;
   }
 

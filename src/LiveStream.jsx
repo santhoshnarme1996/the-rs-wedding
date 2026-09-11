@@ -4,7 +4,7 @@ function LiveStream() {
   const { youtubeId, url } = weddingData.liveStream;
 
   return (
-    <main className="photo-gallery-page">
+    <main className="live-stream-page">
       <section className="photo-gallery live-stream">
         <div className="live-stream__card">
           <p className="eyebrow">Live Stream</p>
