@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { weddingData } from "./data";
 import PhotoGallery from "./PhotoGallery";
+import LiveStream from "./LiveStream";
 
 function useCountdown(targetDate) {
   const calculate = () => {
@@ -251,7 +252,7 @@ const menuItems = [
   { href: "#venue", label: "Venue" },
   { href: "#itinerary", label: "Functions" },
   { href: "#rsvp", label: "RSVP", requiresInvite: true },
-  { label: "Live Stream", comingSoon: true },
+  { href: "/live", label: "Live Stream" },
   { href: "/photos", label: "Upload Photos" },
 ];
 
@@ -1333,6 +1334,10 @@ function App() {
 
   if (window.location.pathname === "/photos") {
     return <PhotoGallery />;
+  }
+
+  if (window.location.pathname === "/live") {
+    return <LiveStream />;
   }
 
   const inviteCode = new URLSearchParams(window.location.search).get("invite");

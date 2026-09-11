@@ -9,6 +9,10 @@ export const weddingData = {
   families: ["Santhosh & family", "Rithikha & family"],
   showKolamHalo: false,
   showCoupleSection: false,
+  liveStream: {
+    youtubeId: "q9JxF1BmAsQ",
+    url: "https://youtube.com/live/q9JxF1BmAsQ",
+  },
   keyEvents: [
     {
       id: "reception",

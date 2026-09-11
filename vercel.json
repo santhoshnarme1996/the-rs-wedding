@@ -23,6 +23,14 @@
     {
       "source": "/photos/(.*)",
       "destination": "/index.html"
+    },
+    {
+      "source": "/live",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/live/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
