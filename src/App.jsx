@@ -3,6 +3,8 @@ import { weddingData } from "./data";
 import PhotoGallery from "./PhotoGallery";
 import LiveStream from "./LiveStream";
 
+const pluralize = (count, singular) => (count === 1 ? singular : `${singular}s`);
+
 function useCountdown(targetDate) {
   const calculate = () => {
     const diff = Math.max(new Date(targetDate).getTime() - Date.now(), 0);
@@ -1393,9 +1395,9 @@ function App() {
           </div>
           <p className="countdown__label">The celebration begins in</p>
           <div className="countdown" aria-live="polite">
-            <div><strong>{countdown.days}</strong><span>Days</span></div>
-            <div><strong>{countdown.hours}</strong><span>Hours</span></div>
-            <div><strong>{countdown.minutes}</strong><span>Minutes</span></div>
+            <div><strong>{countdown.days}</strong><span>{pluralize(countdown.days, "Day")}</span></div>
+            <div><strong>{countdown.hours}</strong><span>{pluralize(countdown.hours, "Hour")}</span></div>
+            <div><strong>{countdown.minutes}</strong><span>{pluralize(countdown.minutes, "Minute")}</span></div>
           </div>
           <a className="scroll-invite" href="#events">
             <span>Our invitation</span>
