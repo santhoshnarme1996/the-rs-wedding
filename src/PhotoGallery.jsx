@@ -205,6 +205,7 @@ function PhotoGallery() {
   const [uploadCount, setUploadCount] = useState(0);
   const [activeTab, setActiveTab] = useState(EVENT_TABS[0].id);
   const [uploadEvent, setUploadEvent] = useState(EVENT_TABS[0].id);
+  const [viewerIndex, setViewerIndex] = useState(null);
 
   useEffect(() => {
     const node = tabsRef.current;
@@ -431,6 +432,44 @@ function PhotoGallery() {
       ? photos.filter((photo) => photo.profileId === profile.id)
       : photos.filter((photo) => photo.event === activeTab);
 
+  const openViewer = (index) => setViewerIndex(index);
+  const closeViewer = () => setViewerIndex(null);
+  const showPrevPhoto = () => setViewerIndex((current) => (current - 1 + visiblePhotos.length) % visiblePhotos.length);
+  const showNextPhoto = () => setViewerIndex((current) => (current + 1) % visiblePhotos.length);
+
+  useEffect(() => {
+    if (viewerIndex === null) {
+      return undefined;
+    }
+
+    if (viewerIndex >= visiblePhotos.length) {
+      setViewerIndex(visiblePhotos.length ? visiblePhotos.length - 1 : null);
+      return undefined;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") {
+        closeViewer();
+      } else if (event.key === "ArrowLeft" && visiblePhotos.length > 1) {
+        showPrevPhoto();
+      } else if (event.key === "ArrowRight" && visiblePhotos.length > 1) {
+        showNextPhoto();
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [viewerIndex, visiblePhotos.length]);
+
+  const viewerPhoto = viewerIndex === null ? null : visiblePhotos[viewerIndex];
+
   return (
     <main className="photo-gallery-page">
       <section className="photo-gallery">
@@ -497,15 +536,30 @@ function PhotoGallery() {
             {message && <p className="photo-gallery__message photo-gallery__message--error">{message}</p>}
 
             <div className="photo-gallery__grid">
-              {visiblePhotos.map((photo) => (
+              {visiblePhotos.map((photo, index) => (
                 <figure className="photo-gallery__item" key={photo.id}>
                   <div className="photo-gallery__image-wrap">
                     {photo.mediaType === "video" ? (
                       <video src={photo.url} controls playsInline preload="metadata" />
                     ) : (
-                      <img src={photo.url} alt={`Uploaded by ${photo.uploaderName}`} loading="lazy" />
+                      <img
+                        src={photo.url}
+                        alt={`Uploaded by ${photo.uploaderName}`}
+                        loading="lazy"
+                        onClick={() => openViewer(index)}
+                      />
                     )}
                     <Avatar name={photo.uploaderName} />
+                    <button
+                      type="button"
+                      className="photo-gallery__expand"
+                      aria-label="View full screen"
+                      onClick={() => openViewer(index)}
+                    >
+                      <svg viewBox="0 0 16 16" aria-hidden="true">
+                        <path d="M2 6V2h4M14 6V2h-4M2 10v4h4M14 10v4h-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </button>
                   </div>
                   <figcaption>
                     <span>{photo.uploaderName}</span>
@@ -526,6 +580,51 @@ function PhotoGallery() {
           </>
         )}
       </section>
+
+      {viewerPhoto && (
+        <div className="photo-viewer" role="dialog" aria-modal="true" onClick={closeViewer}>
+          <button type="button" className="photo-viewer__close" aria-label="Close" onClick={closeViewer}>
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3l10 10M13 3 3 13" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /></svg>
+          </button>
+
+          {visiblePhotos.length > 1 && (
+            <button
+              type="button"
+              className="photo-viewer__nav photo-viewer__nav--prev"
+              aria-label="Previous"
+              onClick={(event) => {
+                event.stopPropagation();
+                showPrevPhoto();
+              }}
+            >
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m10 3-5 5 5 5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            </button>
+          )}
+
+          <div className="photo-viewer__stage" onClick={(event) => event.stopPropagation()}>
+            {viewerPhoto.mediaType === "video" ? (
+              <video src={viewerPhoto.url} controls playsInline autoPlay />
+            ) : (
+              <img src={viewerPhoto.url} alt={`Uploaded by ${viewerPhoto.uploaderName}`} />
+            )}
+            <p className="photo-viewer__caption">{viewerPhoto.uploaderName}</p>
+          </div>
+
+          {visiblePhotos.length > 1 && (
+            <button
+              type="button"
+              className="photo-viewer__nav photo-viewer__nav--next"
+              aria-label="Next"
+              onClick={(event) => {
+                event.stopPropagation();
+                showNextPhoto();
+              }}
+            >
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m6 3 5 5-5 5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            </button>
+          )}
+        </div>
+      )}
     </main>
   );
 }
