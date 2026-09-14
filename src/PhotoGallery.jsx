@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 
-const MAX_FILE_BYTES = 10 * 1024 * 1024;
+const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
+const MAX_VIDEO_BYTES = 150 * 1024 * 1024;
+const UPLOAD_CONCURRENCY = 3;
 
 const EVENT_TABS = [
   { id: "viratham-engagement", label: "Viratham & Engagement" },
@@ -302,12 +304,18 @@ function PhotoGallery() {
   };
 
   const uploadFile = async (file) => {
-    if (!file.type.startsWith("image/")) {
-      throw new Error(`${file.name} is not an image.`);
+    const isImage = file.type.startsWith("image/");
+    const isVideo = file.type.startsWith("video/");
+
+    if (!isImage && !isVideo) {
+      throw new Error(`${file.name} is not an image or video.`);
     }
 
-    if (file.size > MAX_FILE_BYTES) {
-      throw new Error(`${file.name} is larger than 10MB.`);
+    const mediaType = isVideo ? "video" : "image";
+    const maxBytes = isVideo ? MAX_VIDEO_BYTES : MAX_IMAGE_BYTES;
+
+    if (file.size > maxBytes) {
+      throw new Error(`${file.name} is larger than ${isVideo ? "150MB" : "10MB"}.`);
     }
 
     const capturedAt = await readExifCapturedAt(file);
@@ -341,7 +349,14 @@ function PhotoGallery() {
     const saveResponse = await fetch("/api/gallery/photos", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ profileId: profile.id, key: urlPayload.key, url: urlPayload.publicUrl, event: uploadEvent, capturedAt }),
+      body: JSON.stringify({
+        profileId: profile.id,
+        key: urlPayload.key,
+        url: urlPayload.publicUrl,
+        event: uploadEvent,
+        mediaType,
+        capturedAt,
+      }),
     });
     const savePayload = await saveResponse.json();
 
@@ -362,16 +377,26 @@ function PhotoGallery() {
     setMessage("");
     setUploadCount(files.length);
 
-    for (const file of files) {
-      try {
-        const photo = await uploadFile(file);
-        setPhotos((current) => [photo, ...current]);
-      } catch (error) {
-        setMessage(error.message || "Unable to upload photo.");
-      } finally {
-        setUploadCount((current) => Math.max(0, current - 1));
+    let nextIndex = 0;
+
+    const runWorker = async () => {
+      while (nextIndex < files.length) {
+        const file = files[nextIndex];
+        nextIndex += 1;
+
+        try {
+          const photo = await uploadFile(file);
+          setPhotos((current) => [photo, ...current]);
+        } catch (error) {
+          setMessage(error.message || "Unable to upload photo.");
+        } finally {
+          setUploadCount((current) => Math.max(0, current - 1));
+        }
       }
-    }
+    };
+
+    const workerCount = Math.min(UPLOAD_CONCURRENCY, files.length);
+    await Promise.all(Array.from({ length: workerCount }, runWorker));
 
     event.target.value = "";
   };
@@ -463,7 +488,7 @@ function PhotoGallery() {
                 ref={fileInputRef}
                 className="photo-gallery__file-input"
                 type="file"
-                accept="image/*"
+                accept="image/*,video/*"
                 multiple
                 onChange={handleFiles}
               />
@@ -475,7 +500,11 @@ function PhotoGallery() {
               {visiblePhotos.map((photo) => (
                 <figure className="photo-gallery__item" key={photo.id}>
                   <div className="photo-gallery__image-wrap">
-                    <img src={photo.url} alt={`Uploaded by ${photo.uploaderName}`} loading="lazy" />
+                    {photo.mediaType === "video" ? (
+                      <video src={photo.url} controls playsInline preload="metadata" />
+                    ) : (
+                      <img src={photo.url} alt={`Uploaded by ${photo.uploaderName}`} loading="lazy" />
+                    )}
                     <Avatar name={photo.uploaderName} />
                   </div>
                   <figcaption>

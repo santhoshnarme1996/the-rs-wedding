@@ -71,6 +71,7 @@ export const ensureSchema = async (sql) => {
       url TEXT NOT NULL,
       caption TEXT,
       event TEXT NOT NULL DEFAULT 'reception',
+      media_type TEXT NOT NULL DEFAULT 'image',
       captured_at TIMESTAMPTZ,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
@@ -78,10 +79,13 @@ export const ensureSchema = async (sql) => {
 
   await sql`ALTER TABLE guest_photos ADD COLUMN IF NOT EXISTS event TEXT NOT NULL DEFAULT 'reception'`;
   await sql`ALTER TABLE guest_photos ADD COLUMN IF NOT EXISTS captured_at TIMESTAMPTZ`;
+  await sql`ALTER TABLE guest_photos ADD COLUMN IF NOT EXISTS media_type TEXT NOT NULL DEFAULT 'image'`;
   await sql`ALTER TABLE guest_photos DROP CONSTRAINT IF EXISTS guest_photos_event_check`;
   await sql`UPDATE guest_photos SET event = 'viratham-engagement' WHERE event = 'engagement'`;
   await sql`UPDATE guest_photos SET event = 'oonjal-muhurtham' WHERE event = 'wedding'`;
   await sql`ALTER TABLE guest_photos ADD CONSTRAINT guest_photos_event_check CHECK (event IN ('viratham-engagement', 'sangeet', 'reception', 'oonjal-muhurtham', 'nalangu'))`;
+  await sql`ALTER TABLE guest_photos DROP CONSTRAINT IF EXISTS guest_photos_media_type_check`;
+  await sql`ALTER TABLE guest_photos ADD CONSTRAINT guest_photos_media_type_check CHECK (media_type IN ('image', 'video'))`;
   await sql`CREATE INDEX IF NOT EXISTS guest_photos_profile_id_idx ON guest_photos(profile_id)`;
   await sql`CREATE INDEX IF NOT EXISTS guest_photos_event_idx ON guest_photos(event)`;
 };
@@ -134,6 +138,7 @@ export const serializePhoto = (row) => ({
   url: row.url,
   caption: row.caption || "",
   event: row.event,
+  mediaType: row.media_type,
   uploaderName: row.name,
   capturedAt: row.captured_at,
   createdAt: row.created_at,

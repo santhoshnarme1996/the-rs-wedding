@@ -1453,11 +1453,13 @@ h2 {
   position: relative;
 }
 
-.photo-gallery__item img {
+.photo-gallery__item img,
+.photo-gallery__item video {
   display: block;
   width: 100%;
   aspect-ratio: 4 / 5;
   object-fit: cover;
+  background: #1b1310;
 }
 
 .photo-gallery__avatar {

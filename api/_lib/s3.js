@@ -2,7 +2,7 @@ import crypto from "node:crypto";
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
-const UPLOAD_URL_TTL_SECONDS = 5 * 60;
+const UPLOAD_URL_TTL_SECONDS = 20 * 60;
 
 const getS3Config = () => {
   const accessKeyId = process.env.AWS_ACCESS_KEY_ID;

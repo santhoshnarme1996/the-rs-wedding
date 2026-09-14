@@ -10,6 +10,7 @@ const normalizeBody = (body) => {
 };
 
 const VALID_EVENTS = ["viratham-engagement", "sangeet", "reception", "oonjal-muhurtham", "nalangu"];
+const VALID_MEDIA_TYPES = ["image", "video"];
 
 const parseCapturedAt = (value) => {
   if (!value) {
@@ -28,7 +29,7 @@ export default async function handler(request, response) {
 
     if (request.method === "GET") {
       const rows = await sql`
-        SELECT p.id, p.profile_id, p.url, p.caption, p.event, p.captured_at, p.created_at, g.name
+        SELECT p.id, p.profile_id, p.url, p.caption, p.event, p.media_type, p.captured_at, p.created_at, g.name
         FROM guest_photos p
         JOIN guest_profiles g ON g.id = p.profile_id
         ORDER BY COALESCE(p.captured_at, p.created_at) DESC
@@ -45,6 +46,7 @@ export default async function handler(request, response) {
       const url = String(payload.url || "").trim();
       const caption = String(payload.caption || "").trim();
       const event = String(payload.event || "").trim();
+      const mediaType = String(payload.mediaType || "image").trim();
       const capturedAt = parseCapturedAt(payload.capturedAt);
 
       if (!profileId || !key || !url) {
@@ -55,6 +57,10 @@ export default async function handler(request, response) {
         return response.status(400).json({ error: "Please choose which event this photo is from." });
       }
 
+      if (!VALID_MEDIA_TYPES.includes(mediaType)) {
+        return response.status(400).json({ error: "Unsupported media type." });
+      }
+
       const profiles = await sql`SELECT id, name FROM guest_profiles WHERE id = ${profileId} LIMIT 1`;
 
       if (!profiles.length) {
@@ -62,9 +68,9 @@ export default async function handler(request, response) {
       }
 
       const rows = await sql`
-        INSERT INTO guest_photos (profile_id, s3_key, url, caption, event, captured_at)
-        VALUES (${profileId}, ${key}, ${url}, ${caption || null}, ${event}, ${capturedAt})
-        RETURNING id, profile_id, url, caption, event, captured_at, created_at
+        INSERT INTO guest_photos (profile_id, s3_key, url, caption, event, media_type, captured_at)
+        VALUES (${profileId}, ${key}, ${url}, ${caption || null}, ${event}, ${mediaType}, ${capturedAt})
+        RETURNING id, profile_id, url, caption, event, media_type, captured_at, created_at
       `;
 
       return response.status(201).json({

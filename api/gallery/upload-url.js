@@ -9,7 +9,8 @@ const normalizeBody = (body) => {
   return body || {};
 };
 
-const MAX_FILE_BYTES = 10 * 1024 * 1024;
+const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
+const MAX_VIDEO_BYTES = 150 * 1024 * 1024;
 
 export default async function handler(request, response) {
   if (request.method !== "POST") {
@@ -27,12 +28,19 @@ export default async function handler(request, response) {
     return response.status(400).json({ error: "Missing profile id." });
   }
 
-  if (!fileType.startsWith("image/")) {
-    return response.status(400).json({ error: "Only image files can be uploaded." });
+  const isImage = fileType.startsWith("image/");
+  const isVideo = fileType.startsWith("video/");
+
+  if (!isImage && !isVideo) {
+    return response.status(400).json({ error: "Only image or video files can be uploaded." });
   }
 
-  if (Number.isInteger(fileSize) && fileSize > MAX_FILE_BYTES) {
-    return response.status(400).json({ error: "Photos must be under 10MB." });
+  const maxBytes = isVideo ? MAX_VIDEO_BYTES : MAX_IMAGE_BYTES;
+
+  if (Number.isInteger(fileSize) && fileSize > maxBytes) {
+    return response.status(400).json({
+      error: isVideo ? "Videos must be under 150MB." : "Photos must be under 10MB.",
+    });
   }
 
   try {
