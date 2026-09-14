@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { weddingData } from "./data";
 import PhotoGallery from "./PhotoGallery";
+import LiveStream from "./LiveStream";
+
+const pluralize = (count, singular) => (count === 1 ? singular : `${singular}s`);
 
 function useCountdown(targetDate) {
   const calculate = () => {
@@ -251,7 +254,7 @@ const menuItems = [
   { href: "/#venue", label: "Venue" },
   { href: "/#itinerary", label: "Functions" },
   { href: "/#rsvp", label: "RSVP", requiresInvite: true },
-  { label: "Live Stream", comingSoon: true },
+  { href: "/live", label: "Live Stream" },
   { href: "/photos", label: "Upload Photos" },
 ];
 
@@ -1340,6 +1343,15 @@ function App() {
     );
   }
 
+  if (window.location.pathname === "/live") {
+    return (
+      <>
+        <FloatingMenu />
+        <LiveStream />
+      </>
+    );
+  }
+
   const inviteCode = new URLSearchParams(window.location.search).get("invite");
   const isRithikhaInvite = invite?.hostFamily === "rithikha";
   const couple = isRithikhaInvite ? [...weddingData.couple].reverse() : weddingData.couple;
@@ -1383,9 +1395,9 @@ function App() {
           </div>
           <p className="countdown__label">The celebration begins in</p>
           <div className="countdown" aria-live="polite">
-            <div><strong>{countdown.days}</strong><span>Days</span></div>
-            <div><strong>{countdown.hours}</strong><span>Hours</span></div>
-            <div><strong>{countdown.minutes}</strong><span>Minutes</span></div>
+            <div><strong>{countdown.days}</strong><span>{pluralize(countdown.days, "Day")}</span></div>
+            <div><strong>{countdown.hours}</strong><span>{pluralize(countdown.hours, "Hour")}</span></div>
+            <div><strong>{countdown.minutes}</strong><span>{pluralize(countdown.minutes, "Minute")}</span></div>
           </div>
           <a className="scroll-invite" href="#events">
             <span>Our invitation</span>
